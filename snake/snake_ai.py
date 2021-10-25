@@ -22,13 +22,16 @@ def get_action(snake, food, board_size, debug=False):
     """
     Returns the move to be made by the snake.
     """
-    vector_to_food = get_vector_to_food(snake, food)
+    path_to_food = a_star.a_Star(snake[0], food, board_size, snake)
+    if not path_to_food:
+        vector_to_food = get_vector_to_food(snake, food)
+    else:
+        vector_to_food = get_vector_to_food(snake, path_to_food[1])
     direction_choice = None
     if debug: print("-------------------")
     if directions.get(vector_to_food, None):
         direction_choice =  directions[vector_to_food]
     else:
-        # this randomess below is crucial to it not getting stuck in loops
         direction_choice =  best_rand_direction(diagnols[vector_to_food], snake, board_size, food, debug)
     possible_directions = list(directions.values())
     possible_directions.remove(direction_choice)
@@ -59,14 +62,22 @@ def best_rand_direction(possible_directions, snake, board_size, food, debug=Fals
     for direction in possible_directions:
         num_neighbors_in_snake = 0
         square = get_square_in_direction(snake[0], direction)
-        # squares = get_neighbors(snake[0], snake, board_size) if lategame else [get_square_in_direction(snake[0], direction)]
-        # for square in squares:
-        path = a_star.a_Star(square, food, board_size, snake)
+        path_to_food = a_star.a_Star(square, food, board_size, snake)
         # TODO find the best value for if no path
-        len_path_to_food = len(path) if path else (board_size[0] * board_size[1])/2
+        # if no path it is larrrge which means it will incetivze directions that have a path to food
+        # if_no_path = (board_size[0] * board_size[1])/5
+        len_path_to_food = len(path_to_food) if path_to_food else 1
         num_neighbors_in_snake = get_num_neighbors_in_snake(square, snake, board_size)
         # TODO find best value for num
-        num = num_neighbors_in_snake - len_path_to_food
+        num = 0
+        # num neighbors in snake should be incentivized, therefore its added
+        num += num_neighbors_in_snake
+        # len_path_to_food should be decentivzed, therefore its subtracted
+        # as the game goes on this should matter less and less
+        # percent_through_game = len(snake) - (board_size[0]+1 * board_size[1]+1) / (board_size[0]+1 * board_size[1]+1)
+        # num -= len_path_to_food * percent_through_game
+
+        # best paths are ones with large nums
         if num > best_num:
             best_direction = direction
             best_num = num
@@ -79,12 +90,12 @@ def get_square_in_direction(square, direction):
     
 def get_num_neighbors_in_snake(square, snake, board_size):
     num = 0
-    for neighbor in get_neighbors(square, snake, board_size):
+    for neighbor in get_neighbors(square):
         if neighbor in snake:
             num += 1
     return num
 
-def get_neighbors(square, snake, board_size):
+def get_neighbors(square):
     """
     Returns the number of neighbors that are part of the snake of the given coordinate.
     """
@@ -92,19 +103,8 @@ def get_neighbors(square, snake, board_size):
     neighbors = []
     for direction in list(directions.keys()) + list(diagnols.keys()):
         neighbor = (x + direction[0], y + direction[1])
-        # if neighbor in snake or out_of_bounds(neighbor, board_size):
-        #     continue
         neighbors.append(neighbor)
     return neighbors
-
-# def food_enclosed(snake, food, board_size):
-#     """
-#     Returns True if the food is enclosed by the snake.
-#     """
-#     for square in get_neighbors(food):
-#         if square not in snake or not out_of_bounds(square, board_size):
-#             return False
-#     return True
 
 def out_of_bounds(square, board_size):
     """
@@ -116,11 +116,8 @@ def out_of_bounds(square, board_size):
 def good_direction(direction, snake, board_size, debug=False):
     does_intersect = intersects(direction, snake, board_size)
     see_tail = can_see_tail_a_star(get_square_in_direction(snake[0], direction), snake, board_size)
-    # enough_space = get_open_space(direction, snake, board_size)
     if debug: print(direction, ": does intersect: ", does_intersect," can see tail: ", see_tail)
     return not does_intersect and see_tail
-    # return (not intersects(direction, snake, board_size)) and (can_see_tail_a_star(direction, snake, board_size) or get_open_space(direction, snake, board_size)>len(snake))
-
 
 def can_see_tail_a_star(square, snake, board_size):
     x, y = square
