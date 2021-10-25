@@ -53,11 +53,12 @@ def best_rand_direction(possible_directions, snake, board_size):
     """
     best_direction = None
     best_num_neighbors = float("-inf")
-    for direction in possible_directions:
-        num_neighbors = get_num_neighbors(get_square_in_direction(snake[0], direction), snake, board_size)
-        if num_neighbors > best_num_neighbors:
-            best_direction = direction
-            best_num_neighbors = num_neighbors
+    for square in get_neighbors(snake[0], snake, board_size):
+        for direction in possible_directions:
+            num_neighbors = get_num_neighbors(get_square_in_direction(square, direction), snake, board_size)
+            if num_neighbors > best_num_neighbors:
+                best_direction = direction
+                best_num_neighbors = num_neighbors
     return best_direction if not best_direction == None else random.choice(possible_directions)
     # return best_direction
 
@@ -150,62 +151,3 @@ def has_path_to_food(direction, snake, board_size, food):
     if x == food[0] and y == food[1]:
         return True
     return a_star.a_Star((x,y), food, board_size, snake[1:]) == None
-
-
-# def get_open_spaces(direction, snake, board_size):
-#     """
-#     Returns the open spaces from the location
-#     """
-#     x = snake[0][0] + opposite_directions[direction][0]
-#     y = snake[0][1] + opposite_directions[direction][1]
-#     open_spaces = []
-#     spaces_to_check = [(x, y)]
-#     while spaces_to_check != []:
-#         x, y = spaces_to_check.pop()
-#         if (x, y) in open_spaces:
-#             continue
-#         if x < 0 or x >= board_size[0]:
-#             continue
-#         if y < 0 or y >= board_size[1]:
-#             continue
-#         if (x, y) in snake:
-#             continue
-#         open_spaces.append((x, y))
-#         spaces_to_check.append((x + 1, y))
-#         spaces_to_check.append((x - 1, y))
-#         spaces_to_check.append((x, y + 1))
-#         spaces_to_check.append((x, y - 1))
-#     return open_spaces
-
-# def get_open_space(direction, snake, board_size):
-#     return len(get_open_spaces(direction, snake, board_size))
-
-
-# def can_see_tail(direction, snake, board_size, debug=False):
-#     """
-#     Returns True if the snake can move in the given direction and see the tail.
-#     """
-#     x = snake[0][0] + opposite_directions[direction][0]
-#     y = snake[0][1] + opposite_directions[direction][1]
-#     if debug: print("checking squre:" , x, y)
-#     checked_spaces = []
-#     spaces_to_check = [(x, y)]
-#     while spaces_to_check != []:
-#         x, y = spaces_to_check.pop()
-#         if (x, y) in checked_spaces:
-#             continue
-#         if x < 0 or x >= board_size[0]:
-#             continue
-#         if y < 0 or y >= board_size[1]:
-#             continue
-#         if (x, y) in snake[1:len(snake)-1]:
-#             continue
-#         if (x, y) == snake[-1]:
-#             return True
-#         checked_spaces.append((x, y))
-#         spaces_to_check.append((x + 1, y))
-#         spaces_to_check.append((x - 1, y))
-#         spaces_to_check.append((x, y + 1))
-#         spaces_to_check.append((x, y - 1))
-#     # if debug: print(direction)
-#     return False
