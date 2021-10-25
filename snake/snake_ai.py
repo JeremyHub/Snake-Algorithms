@@ -29,7 +29,7 @@ def get_action(snake, food, board_size, debug=False):
         direction_choice =  directions[vector_to_food]
     else:
         # this randomess below is crucial to it not getting stuck in loops
-        direction_choice =  best_rand_direction(diagnols[vector_to_food], snake, board_size)
+        direction_choice =  best_rand_direction(diagnols[vector_to_food], snake, board_size, food, debug)
     possible_directions = list(directions.values())
     possible_directions.remove(direction_choice)
     while True:
@@ -43,32 +43,46 @@ def get_action(snake, food, board_size, debug=False):
                 if debug: print("No possible directions")
                 while True:
                     pass
-            direction_choice = best_rand_direction(possible_directions, snake, board_size)
+            direction_choice = best_rand_direction(possible_directions, snake, board_size, food, debug)
             possible_directions.remove(direction_choice)
 
-def best_rand_direction(possible_directions, snake, board_size):
+def best_rand_direction(possible_directions, snake, board_size, food, debug=False):
     """
     Returns the best random direction. It works if this function just returns a random choice
     but, its better for this function returned a direction that sticks close to the body of the snake.
     """
     best_direction = None
-    best_num_neighbors = float("-inf")
-    for square in get_neighbors(snake[0], snake, board_size):
-        for direction in possible_directions:
-            num_neighbors = get_num_neighbors(get_square_in_direction(square, direction), snake, board_size)
-            if num_neighbors > best_num_neighbors:
-                best_direction = direction
-                best_num_neighbors = num_neighbors
-    return best_direction if not best_direction == None else random.choice(possible_directions)
-    # return best_direction
+    lategame = len(snake) > (board_size[0] * board_size[1]) / 2
+    if debug: print("lategame: ", lategame)
+    best_num = float("-inf")
+
+    for direction in possible_directions:
+        num_neighbors_in_snake = 0
+        square = get_square_in_direction(snake[0], direction)
+        # squares = get_neighbors(snake[0], snake, board_size) if lategame else [get_square_in_direction(snake[0], direction)]
+        # for square in squares:
+        path = a_star.a_Star(square, food, board_size, snake)
+        # TODO find the best value for if no path
+        len_path_to_food = len(path) if path else (board_size[0] * board_size[1])/2
+        num_neighbors_in_snake = get_num_neighbors_in_snake(square, snake, board_size)
+        # TODO find best value for num
+        num = num_neighbors_in_snake - len_path_to_food
+        if num > best_num:
+            best_direction = direction
+            best_num = num
+    return best_direction
 
 def get_square_in_direction(square, direction):
     x = square[0] + opposite_directions[direction][0]
     y = square[1] + opposite_directions[direction][1]
     return (x, y)
     
-def get_num_neighbors(square, snake, board_size):
-    return len(get_neighbors(square, snake, board_size))
+def get_num_neighbors_in_snake(square, snake, board_size):
+    num = 0
+    for neighbor in get_neighbors(square, snake, board_size):
+        if neighbor in snake:
+            num += 1
+    return num
 
 def get_neighbors(square, snake, board_size):
     """
@@ -78,8 +92,8 @@ def get_neighbors(square, snake, board_size):
     neighbors = []
     for direction in list(directions.keys()) + list(diagnols.keys()):
         neighbor = (x + direction[0], y + direction[1])
-        if neighbor in snake or out_of_bounds(neighbor, board_size):
-            continue
+        # if neighbor in snake or out_of_bounds(neighbor, board_size):
+        #     continue
         neighbors.append(neighbor)
     return neighbors
 
