@@ -8,8 +8,6 @@ class Board:
         self.width = width
         self.screen = screen
         self.height = height
-        self.snake = [(width // 2, height // 2)]
-        self.snake.append((self.snake[0][0] + 1, self.snake[0][1]))
         self.food = None
         self.direction = 'right'
         self.score = 0
@@ -57,8 +55,11 @@ class Board:
     def draw(self):
         self.screen.fill((0, 0, 0))
         pygame.draw.rect(self.screen, (0, 0, 255), (self.snake[0][0] * self.scale + self.padding, self.snake[0][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
-        for x, y in self.snake[1:]:
-            pygame.draw.rect(self.screen, (0, 255, 0), (x * self.scale + self.padding, y * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
+        pygame.draw.rect(self.screen, (255, 255, 255), (self.snake[-1][0] * self.scale + self.padding, self.snake[-1][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))        
+        redness = 255
+        for x, y in self.snake[1:len(self.snake)-1]:
+            redness = redness - 20 if redness-20 > 0 else 0
+            pygame.draw.rect(self.screen, (redness, 255, 0), (x * self.scale + self.padding, y * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
         pygame.draw.rect(self.screen, (255, 0, 0), (self.food[0] * self.scale + self.padding, self.food[1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
 
         # draw score
@@ -119,6 +120,8 @@ class Board:
         
     def reset(self):
         self.snake = [(self.width // 2, self.height // 2)]
+        tail = (self.snake[0][0] + 1, self.snake[0][1])
+        self.snake.append(tail)
         self.direction = 'right'
         self.score = 0
         self.game_over = False
@@ -127,7 +130,7 @@ class Board:
     def run_with_ai_input(self):
         self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height))
         self.update()
-        pygame.time.delay(10)
+        # pygame.time.delay(1)
 
 if __name__ == '__main__':
     pygame.init()
