@@ -55,7 +55,7 @@ def reconstruct_path(cameFrom, current):
         total_path.insert(0, current)
     return total_path
 
-def a_Star(start, goal, board_size, snake_body):
+def a_Star(start, goal, board_size, snake_body, debug=False):
     openSet = [start]
     cameFrom = {}
     gScore = {}
@@ -67,10 +67,10 @@ def a_Star(start, goal, board_size, snake_body):
         current = min(openSet, key=lambda x: fScore[x])
         
         if current == goal:
-            print("can! get from here: ", start, " to here: ", goal)
-            print("with the above path, the head of the snake is: ", snake_body[0])
+            if debug: print("can! get from here: ", start, " to here: ", goal)
+            if debug: print("with the above path, the head of the snake is: ", snake_body[0])
             path = reconstruct_path(cameFrom, current)
-            print("the path is: ", path)
+            if debug: print("the path is: ", path)
             return path
 
         openSet.remove(current)
@@ -84,7 +84,7 @@ def a_Star(start, goal, board_size, snake_body):
                     openSet.append(neighbor)
 
     # Open set is empty but goal was never reached
-    print("cant get from here: ", start, " to here: ", goal)
+    if debug: print("cant get from here: ", start, " to here: ", goal)
     return None
 
 directions = [

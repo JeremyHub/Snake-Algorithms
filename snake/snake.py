@@ -4,7 +4,8 @@ import random
 import snake_ai
 
 class Board:
-    def __init__(self, width, height, screen):
+    def __init__(self, width, height, screen, debug=False):
+        self.debug = debug
         self.width = width
         self.screen = screen
         self.height = height
@@ -128,14 +129,15 @@ class Board:
         self.generate_food()
     
     def run_with_ai_input(self):
-        self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height))
+        self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height), self.debug)
         self.update()
         # pygame.time.delay(1)
 
 if __name__ == '__main__':
     pygame.init()
     screen = pygame.display.set_mode((900, 900))
-    board = Board(20, 20, screen)
+    debug = False
+    board = Board(20, 20, screen, debug)
     human_input = False
     # human_input = True
     while human_input: board.run_with_human_input()
