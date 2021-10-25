@@ -59,24 +59,27 @@ def best_rand_direction(possible_directions, snake, board_size, food, debug=Fals
     if debug: print("lategame: ", lategame)
     best_num = float("-inf")
 
+    good_directions_from_direction = {}
+    for direction in possible_directions:
+        for second_direction in directions.values():
+            snake_copy = snake.copy()
+            snake_copy.insert(0, get_square_in_direction(snake_copy[0], second_direction))
+            if good_direction(direction, snake_copy, board_size, debug):
+                # add 1 to the dict at the key of the direction
+                if good_directions_from_direction.get(direction, None):
+                    good_directions_from_direction[direction] += 1
+                else:
+                    good_directions_from_direction[direction] = 1
+            else:
+                good_directions_from_direction[direction] = 0
+
     for direction in possible_directions:
         num_neighbors_in_snake = 0
         square = get_square_in_direction(snake[0], direction)
-        path_to_food = a_star.a_Star(square, food, board_size, snake)
-        # TODO find the best value for if no path
-        # if no path it is larrrge which means it will incetivze directions that have a path to food
-        # if_no_path = (board_size[0] * board_size[1])/5
-        len_path_to_food = len(path_to_food) if path_to_food else 1
         num_neighbors_in_snake = get_num_neighbors_in_snake(square, snake, board_size)
-        # TODO find best value for num
         num = 0
         # num neighbors in snake should be incentivized, therefore its added
         num += num_neighbors_in_snake
-        # len_path_to_food should be decentivzed, therefore its subtracted
-        # as the game goes on this should matter less and less
-        # percent_through_game = len(snake) - (board_size[0]+1 * board_size[1]+1) / (board_size[0]+1 * board_size[1]+1)
-        # num -= len_path_to_food * percent_through_game
-
         # best paths are ones with large nums
         if num > best_num:
             best_direction = direction
