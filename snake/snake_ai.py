@@ -3,7 +3,7 @@ import a_star
 import pygame
 import math
 
-debug = False
+debug = True
 
 directions = {
     (0, 1): 'down',
@@ -25,17 +25,22 @@ def get_action(snake, food, board_size):
     """
     Returns the move to be made by the snake.
     """
-    path_to_food = a_star.a_Star(snake[0], food, board_size, snake)
-    if not path_to_food:
-        vector_to_food = get_vector_to_food(snake, food)
-    else:
-        vector_to_food = get_vector_to_food(snake, path_to_food[1])
-    # vector_to_food = get_vector_to_food(snake, food)
-    direction_choice = None
     if debug: print("-------------------")
-    if debug: print("vector to food: ", vector_to_food)
+    path_to_food = a_star.a_Star(snake[0], food, board_size, snake)
+    if not path_to_food or len(path_to_food) < board_size[0] * board_size[1] / 2:
+        vector_to_food = get_vector(snake, food)
+        if debug: print("vector to food: ", vector_to_food)
+    else:
+        vector_to_food = get_vector(snake, path_to_food[1])
+        if debug: print("vector to first path: ", vector_to_food)
+    if len(snake) > board_size[0] * board_size[1] * 0.8 and not path_to_food:
+        vector_to_food = reverse_vector(get_vector(snake, food))
+        if debug: print("vector to food (lategame)")
+    # vector_to_food = get_vector(snake, food)
+    direction_choice = None
     if debug: print("snake head: ", snake[0])
     if debug: print("snake tail: ", snake[-1])
+    if debug: print("food :", food)
     if directions.get(vector_to_food, None):
         direction_choice =  directions[vector_to_food]
     else:
@@ -67,6 +72,8 @@ def best_rand_direction(possible_directions, snake, board_size, food):
 
     good_directions_from_direction = {}
     for direction in possible_directions:
+        if not good_direction(direction, snake, board_size):
+            continue
         for second_direction in directions.values():
             if debug: print("looking at direction: ", second_direction, " from direction :", direction)
             # making a copy of snake and taking away the tail
@@ -170,7 +177,10 @@ def intersects(direction, snake, board_size):
         return True
     return False
 
-def get_vector_to_food(snake, food):
+def reverse_vector(vector):
+    return (-vector[0], -vector[1])
+
+def get_vector(snake, food):
     """
     Returns the vector to the food.
     """
@@ -184,8 +194,8 @@ def normalize(vector):
     y_sign = 1 if vector[1] >= 0 else -1
     x = x_sign * math.ceil(abs(vector[0]))
     y = y_sign * math.ceil(abs(vector[1]))
-    x_component = int(vector[0] / abs(vector[0])) if vector[0] != 0 else 0
-    y_component = int(vector[1] / abs(vector[1])) if vector[1] != 0 else 0
+    x_component = int(x / abs(x)) if vector[0] != 0 else 0
+    y_component = int(y / abs(y)) if vector[1] != 0 else 0
     return (x_component, y_component)
 
 def has_path_to_food(direction, snake, board_size, food):
