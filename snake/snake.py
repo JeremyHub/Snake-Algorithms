@@ -129,15 +129,17 @@ class Board:
         self.generate_food()
     
     def run_with_ai_input(self):
-        self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height), self.debug)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height))
         self.update()
-        # pygame.time.delay(1)
+        # pygame.time.delay(10)
 
 if __name__ == '__main__':
     pygame.init()
     screen = pygame.display.set_mode((900, 900))
-    debug = False
-    board = Board(20, 20, screen, debug)
+    board = Board(20, 20, screen)
     human_input = False
     # human_input = True
     while human_input: board.run_with_human_input()

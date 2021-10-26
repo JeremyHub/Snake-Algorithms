@@ -1,6 +1,9 @@
 import random
 import a_star
 import pygame
+import math
+
+debug = False
 
 directions = {
     (0, 1): 'down',
@@ -18,7 +21,7 @@ diagnols = {
     (-1, -1): ("up", "left")
 }
 
-def get_action(snake, food, board_size, debug=False):
+def get_action(snake, food, board_size):
     """
     Returns the move to be made by the snake.
     """
@@ -29,16 +32,19 @@ def get_action(snake, food, board_size, debug=False):
         vector_to_food = get_vector_to_food(snake, path_to_food[1])
     direction_choice = None
     if debug: print("-------------------")
+    if debug: print("vector to food: ", vector_to_food)
+    if debug: print("snake head: ", snake[0])
+    if debug: print("snake tail: ", snake[-1])
     if directions.get(vector_to_food, None):
         direction_choice =  directions[vector_to_food]
     else:
-        direction_choice =  best_rand_direction(diagnols[vector_to_food], snake, board_size, food, debug)
+        direction_choice =  best_rand_direction(diagnols[vector_to_food], snake, board_size, food)
     possible_directions = list(directions.values())
     possible_directions.remove(direction_choice)
     while True:
         if debug: print("direction choice: ", direction_choice)
         # if intersects(direction_choice, snake, board_size) or not has_path_to_food(direction_choice, snake, board_size, food):
-        if good_direction(direction_choice, snake, board_size, debug):
+        if good_direction(direction_choice, snake, board_size):
             if debug: print("chosen direction: ", direction_choice)
             return direction_choice
         else:
@@ -46,33 +52,54 @@ def get_action(snake, food, board_size, debug=False):
                 if debug: print("No possible directions")
                 while True:
                     pass
-            direction_choice = best_rand_direction(possible_directions, snake, board_size, food, debug)
+            direction_choice = best_rand_direction(possible_directions, snake, board_size, food)
             possible_directions.remove(direction_choice)
 
-def best_rand_direction(possible_directions, snake, board_size, food, debug=False):
+def best_rand_direction(possible_directions, snake, board_size, food):
     """
     Returns the best random direction. It works if this function just returns a random choice
     but, its better for this function returned a direction that sticks close to the body of the snake.
     """
-    best_direction = None
-    lategame = len(snake) > (board_size[0] * board_size[1]) / 2
-    if debug: print("lategame: ", lategame)
-    best_num = float("-inf")
+    # lategame = len(snake) > (board_size[0] * board_size[1]) / 2
+    # if debug: print("lategame: ", lategame)
+    if debug: print("possible directions: ", possible_directions)
 
     good_directions_from_direction = {}
     for direction in possible_directions:
         for second_direction in directions.values():
-            snake_copy = snake.copy()
+            if debug: print("looking at direction: ", second_direction, " from direction :", direction)
+            # making a copy of snake and taking away the tail
+            snake_copy = snake.copy()[:len(snake)-2]
+            # putting in the new head for the first direction
+            snake_copy.insert(0, get_square_in_direction(snake[0], direction))
+            # putting in the new head for the second direction
             snake_copy.insert(0, get_square_in_direction(snake_copy[0], second_direction))
-            if good_direction(direction, snake_copy, board_size, debug):
-                # add 1 to the dict at the key of the direction
-                if good_directions_from_direction.get(direction, None):
-                    good_directions_from_direction[direction] += 1
-                else:
-                    good_directions_from_direction[direction] = 1
+            if good_direction(second_direction, snake_copy, board_size):
+                good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0) + 1
             else:
-                good_directions_from_direction[direction] = 0
+                good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
+    if debug: print("good directions from direction: ", good_directions_from_direction)
+    max_good_directions = 0
+    max_good_directions_direction = []
+    for direction in good_directions_from_direction.keys():
+        if good_directions_from_direction[direction] > max_good_directions:
+            max_good_directions = good_directions_from_direction[direction]
+            max_good_directions_direction = [direction]
+        elif good_directions_from_direction[direction] == max_good_directions:
+            max_good_directions_direction.append(direction)
+    if len(max_good_directions_direction) == 1:
+        if debug: print("best direction: ", max_good_directions_direction[0])
+        return max_good_directions_direction[0]
+    
+    if len(max_good_directions_direction) > 1:
+        possible_directions = max_good_directions_direction
+        for direction in possible_directions:
+            if out_of_bounds(get_square_in_direction(get_square_in_direction(snake[0], direction), direction), board_size):
+                if debug: print("removed direction: ", direction)
+                possible_directions.remove(direction)
 
+    best_num = float("-inf")
+    best_direction = None
     for direction in possible_directions:
         num_neighbors_in_snake = 0
         square = get_square_in_direction(snake[0], direction)
@@ -116,7 +143,7 @@ def out_of_bounds(square, board_size):
     x, y = square
     return x < 0 or x >= board_size[0] or y < 0 or y >= board_size[1]
 
-def good_direction(direction, snake, board_size, debug=False):
+def good_direction(direction, snake, board_size):
     does_intersect = intersects(direction, snake, board_size)
     see_tail = can_see_tail_a_star(get_square_in_direction(snake[0], direction), snake, board_size)
     if debug: print(direction, ": does intersect: ", does_intersect," can see tail: ", see_tail)
@@ -152,6 +179,10 @@ def normalize(vector):
     """
     Returns the normalized vector.
     """
+    x_sign = 1 if vector[0] >= 0 else -1
+    y_sign = 1 if vector[1] >= 0 else -1
+    x = x_sign * math.ceil(abs(vector[0]))
+    y = y_sign * math.ceil(abs(vector[1]))
     x_component = int(vector[0] / abs(vector[0])) if vector[0] != 0 else 0
     y_component = int(vector[1] / abs(vector[1])) if vector[1] != 0 else 0
     return (x_component, y_component)
