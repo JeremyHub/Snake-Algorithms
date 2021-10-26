@@ -3,7 +3,7 @@ import a_star
 import pygame
 import math
 
-debug = True
+debug = False
 
 directions = {
     (0, 1): 'down',
@@ -27,16 +27,16 @@ def get_action(snake, food, board_size):
     """
     if debug: print("-------------------")
     path_to_food = a_star.a_Star(snake[0], food, board_size, snake)
-    if not path_to_food or len(path_to_food) < board_size[0] * board_size[1] / 2:
-        vector_to_food = get_vector(snake, food)
-        if debug: print("vector to food: ", vector_to_food)
+    if not path_to_food:
+        vector_to_food = reverse_vector(normalize(get_vector(snake, food)))
+        if debug: print("reverse vector to food: ", vector_to_food)
     else:
-        vector_to_food = get_vector(snake, path_to_food[1])
+        vector_to_food = normalize(get_vector(snake, path_to_food[1]))
         if debug: print("vector to first path: ", vector_to_food)
-    if len(snake) > board_size[0] * board_size[1] * 0.8 and not path_to_food:
-        vector_to_food = reverse_vector(get_vector(snake, food))
-        if debug: print("vector to food (lategame)")
-    # vector_to_food = get_vector(snake, food)
+    # if len(snake) > board_size[0] * board_size[1] * 0.8 and not path_to_food:
+    #     vector_to_food = reverse_vector(normalize(get_vector(snake, food)))
+    #     if debug: print("vector to food (lategame)")
+    # vector_to_food = normalize(get_vector(snake, food))
     direction_choice = None
     if debug: print("snake head: ", snake[0])
     if debug: print("snake tail: ", snake[-1])
@@ -184,18 +184,22 @@ def get_vector(snake, food):
     """
     Returns the vector to the food.
     """
-    return normalize([food[0] - snake[0][0], food[1] - snake[0][1]])
+    vector = (food[0] - snake[0][0], food[1] - snake[0][1])
+    x_sign = 1 if vector[0] >= 0 else -1
+    y_sign = 1 if vector[1] >= 0 else -1
+    print("vector: ", vector)
+    x = x_sign * math.ceil(abs(vector[0]))
+    y = y_sign * math.ceil(abs(vector[1]))
+    return (x, y)
 
 def normalize(vector):
     """
     Returns the normalized vector.
     """
-    x_sign = 1 if vector[0] >= 0 else -1
-    y_sign = 1 if vector[1] >= 0 else -1
-    x = x_sign * math.ceil(abs(vector[0]))
-    y = y_sign * math.ceil(abs(vector[1]))
+    x, y = vector
     x_component = int(x / abs(x)) if vector[0] != 0 else 0
     y_component = int(y / abs(y)) if vector[1] != 0 else 0
+    print(x_component, y_component)
     return (x_component, y_component)
 
 def has_path_to_food(direction, snake, board_size, food):
