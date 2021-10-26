@@ -28,10 +28,11 @@ def get_action(snake, food, board_size):
     if debug: print("-------------------")
     path_to_food = a_star.a_Star(snake[0], food, board_size, snake)
     if not path_to_food:
-        vector_to_food = reverse_vector(normalize(get_vector(snake, food)))
+        vector_to_food = reverse_vector(normalize(get_vector_from_head(snake, food)))
         if debug: print("reverse vector to food: ", vector_to_food)
     else:
-        vector_to_food = normalize(get_vector(snake, path_to_food[1]))
+        # vector_to_food = normalize(get_vector(snake, path_to_food[1]))
+        vector_to_food = normalize(get_vector_from_head(snake, food))
         if debug: print("vector to first path: ", vector_to_food)
     # if len(snake) > board_size[0] * board_size[1] * 0.8 and not path_to_food:
     #     vector_to_food = reverse_vector(normalize(get_vector(snake, food)))
@@ -180,14 +181,13 @@ def intersects(direction, snake, board_size):
 def reverse_vector(vector):
     return (-vector[0], -vector[1])
 
-def get_vector(snake, food):
+def get_vector_from_head(snake, point):
     """
-    Returns the vector to the food.
+    Returns the vector to the point from the head, prefers diagnols.
     """
-    vector = (food[0] - snake[0][0], food[1] - snake[0][1])
+    vector = (point[0] - snake[0][0], point[1] - snake[0][1])
     x_sign = 1 if vector[0] >= 0 else -1
     y_sign = 1 if vector[1] >= 0 else -1
-    print("vector: ", vector)
     x = x_sign * math.ceil(abs(vector[0]))
     y = y_sign * math.ceil(abs(vector[1]))
     return (x, y)
@@ -199,7 +199,6 @@ def normalize(vector):
     x, y = vector
     x_component = int(x / abs(x)) if vector[0] != 0 else 0
     y_component = int(y / abs(y)) if vector[1] != 0 else 0
-    print(x_component, y_component)
     return (x_component, y_component)
 
 def has_path_to_food(direction, snake, board_size, food):
