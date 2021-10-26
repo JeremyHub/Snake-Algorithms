@@ -30,6 +30,7 @@ def get_action(snake, food, board_size):
         vector_to_food = get_vector_to_food(snake, food)
     else:
         vector_to_food = get_vector_to_food(snake, path_to_food[1])
+    # vector_to_food = get_vector_to_food(snake, food)
     direction_choice = None
     if debug: print("-------------------")
     if debug: print("vector to food: ", vector_to_food)
