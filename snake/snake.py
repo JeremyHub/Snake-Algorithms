@@ -42,9 +42,14 @@ class Board:
         self.snake.insert(0, new_head)
         if new_head == self.food:
             self.score += 1
-            self.generate_food()
+            if not self.generate_food():
+                self.win()
         else:
             self.snake.pop()
+
+    def win(self):
+        self.game_over = True
+        self.reset()
     
     def check_collision(self):
         head = self.snake[0]
