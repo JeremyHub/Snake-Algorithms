@@ -4,7 +4,7 @@ import random
 import snake_ai
 
 class Board:
-    def __init__(self, width, height, screen, debug=False):
+    def __init__(self, width, height, screen, screen_size, debug=False):
         self.debug = debug
         self.width = width
         self.screen = screen
@@ -12,7 +12,8 @@ class Board:
         self.food = None
         self.direction = 'right'
         self.score = 0
-        self.scale = width*height//10
+        self.num_moves = 0
+        self.scale = screen_size//max(width,height) - 10
         self.padding = self.scale//5
         self.action_queue = []
         self.game_over = False
@@ -75,7 +76,16 @@ class Board:
             pygame.draw.line(screen, (255, 255, 255), (0, y * self.scale), (self.width * self.scale, y * self.scale), 1)
         pygame.display.flip()
 
+        self.draw_heuristics()
+
         pygame.display.update()
+
+    def draw_heuristics(self):
+        # draw heuristics
+        font = pygame.font.SysFont('Arial', 20)
+        text = font.render(f'num moves: {self.num_moves}', True, (255, 255, 255))
+        self.screen.blit(text, (80, self.height * self.scale))
+        pygame.display.flip()
     
     def handle_input(self, input):
         if input == 'right' and self.direction != 'left':
@@ -93,6 +103,7 @@ class Board:
         if self.game_over:
             self.reset()
         self.draw()
+        self.num_moves += 1
     
     def run_with_human_input(self):
         for event in pygame.event.get():
@@ -138,8 +149,10 @@ class Board:
 
 if __name__ == '__main__':
     pygame.init()
-    screen = pygame.display.set_mode((900, 900))
-    board = Board(20, 20, screen)
+    screen_size = 900
+    board_size = 10
+    screen = pygame.display.set_mode((screen_size, screen_size))
+    board = Board(board_size, board_size, screen, screen_size)
     human_input = False
     # human_input = True
     while human_input: board.run_with_human_input()
