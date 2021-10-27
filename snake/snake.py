@@ -87,7 +87,6 @@ class Board:
         pygame.display.update()
 
     def draw_heuristics(self):
-        # draw heuristics
         font = pygame.font.SysFont('Arial', 20)
         text = font.render(f'num moves: {self.num_moves}', True, (255, 255, 255))
         self.screen.blit(text, (80, self.height * self.scale))
@@ -140,6 +139,8 @@ class Board:
         self.snake = [(self.width // 2, self.height // 2)]
         tail = (self.snake[0][0] + 1, self.snake[0][1])
         self.snake.append(tail)
+        tail2 = (self.snake[0][0] + 2, self.snake[0][1])
+        self.snake.append(tail2)
         self.direction = 'right'
         self.score = 0
         self.game_over = False

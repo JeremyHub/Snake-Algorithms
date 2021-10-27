@@ -33,6 +33,10 @@ def get_action(snake, food, board_size):
     if not path_to_food:
         vector_to_food = reverse_vector(normalize(get_vector_diagnols_from_head(snake, food)))
         if debug: print("reverse vector to food: ", vector_to_food)
+    elif len(path_to_food) == 1:
+        vector_to_food = normalize(get_vector_diagnols_from_head(snake, path_to_food[0]))
+        if good_direction(directions[vector_to_food], snake, board_size):
+            return directions[vector_to_food]
     else:
         vector_to_food = normalize(get_vector_diagnols_from_head(snake, food))
         if debug: print("vector to food: ", vector_to_food)
@@ -49,7 +53,7 @@ def get_action(snake, food, board_size):
         vector_to_food = get_direction_names_from_vector(normalize(get_vector_diagnols_from_head(snake, food)))
         vector_away_from_tail = get_direction_names_from_vector(reverse_vector(normalize(get_vector_diagnols_from_head(snake, snake[-1]))))
         intersection = get_same_directions(vector_to_food, vector_away_from_tail)
-        print(intersection)
+        if debug: print("itnersections: ", intersection)
         if len(intersection) == 1:
             possible_directions = [intersection]
             direction_choice = intersection[0]
@@ -95,6 +99,8 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
             snake_copy.insert(0, get_square_in_direction(snake[0], direction))
             # if that direction is good, add 1 to the dict where the key is the original direction
             if good_direction(second_direction, snake_copy, board_size):
+                if has_path_to_food(second_direction, snake_copy, food, board_size):
+                    good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0) + 1
                 good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0) + 1
             else:
                 good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
