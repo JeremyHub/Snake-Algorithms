@@ -3,6 +3,7 @@ import pygame
 import random
 import snake_ai
 
+# TODO add ability to keep track of hueristics and write them to a file
 class Board:
     def __init__(self, width, height, screen, screen_size, debug=False):
         self.debug = debug

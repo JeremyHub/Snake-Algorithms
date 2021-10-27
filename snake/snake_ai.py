@@ -22,6 +22,8 @@ diagnols = {
     (-1, -1): ("up", "left")
 }
 
+# TODO comment this function
+# TODO dissuade it from making squares which are blocked in on three sides (make sure to include edges)
 def get_action(snake, food, board_size):
     """
     Returns the move to be made by the snake.
@@ -114,19 +116,6 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
     # if there are no good directions then return a random one just so the function thats calling this doesnt break, but its gonna move on anyway
     if best_directions == []:
         return random.choice(possible_directions)
-
-    # # if there is more than one good direction
-    # elif len(best_directions) > 1:
-    #     # re-assigning possilbe directions here because it means there is more than one direction in best directions
-    #     possible_directions = best_directions
-    #     # loop over the goood directions
-    #     for direction in best_directions:
-    #         square = get_square_in_direction(snake[0], direction)
-    #         # check if that square is next to a wall, if it is, remove it from the list
-    #         for neighbor in get_neighbors(square):
-    #             if out_of_bounds(neighbor, board_size):
-    #                 possible_directions.remove(direction)
-    #                 break
     
     # if there is one direction, return it
     elif len(best_directions) == 1:
