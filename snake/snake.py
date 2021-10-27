@@ -3,7 +3,6 @@ import pygame
 import random
 import snake_ai
 
-# TODO add ability to keep track of hueristics
 class Board:
     def __init__(self, width, height, screen, screen_size, move_limit, debug=False):
         self.move_limit = move_limit
