@@ -148,6 +148,21 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
             best_num = num
     return best_direction
 
+def check_for_any_block_off_squares(direction, snake, board_size):
+    goal = get_square_in_direction(snake[0], direction)
+    # for every neighbor
+    for square in get_cardinal_neighbors(goal):
+        if square in snake:
+            continue
+        # check if its enclosed
+        surrounding = 0
+        for neighbor in get_cardinal_neighbors(square):
+            if neighbor in snake or out_of_bounds(neighbor, board_size):
+                surrounding += 1
+        if surrounding >= 3:
+            return True # only return true if its blocked off and the head cant raech it
+    return False
+
 def get_same_directions(directiosn1, directions2):
     print(directiosn1, directions2)
     intersection = []
@@ -169,14 +184,22 @@ def get_square_in_direction(square, direction):
     
 def get_num_neighbors_in_snake(square, snake, board_size):
     num = 0
-    for neighbor in get_neighbors(square):
+    for neighbor in get_all_neighbors(square):
         if neighbor in snake:
             num += 1
     return num
 
-def get_neighbors(square):
+def get_cardinal_neighbors(square):
+    x, y = square
+    neighbors = []
+    for direction in list(directions.keys()):
+        neighbor = (x + direction[0], y + direction[1])
+        neighbors.append(neighbor)
+    return neighbors
+
+def get_all_neighbors(square):
     """
-    Returns the number of neighbors that are part of the snake of the given coordinate.
+    Returns the neighbors at the given coordinate.
     """
     x, y = square
     neighbors = []
@@ -194,9 +217,18 @@ def out_of_bounds(square, board_size):
 
 def good_direction(direction, snake, board_size):
     does_intersect = intersects(direction, snake, board_size)
+    if does_intersect:
+        if debug: print(f"{direction} intersects")
+        return False
     see_tail = can_see_tail_a_star(get_square_in_direction(snake[0], direction), snake, board_size)
-    if debug: print(direction, ": does intersect: ", does_intersect," can see tail: ", see_tail)
-    return not does_intersect and see_tail
+    if not see_tail:
+        if debug: print(f"{direction} cant see tail")
+        return False
+    # probably cant have this here, as in there will be times where it has to block off a square
+    if check_for_any_block_off_squares(direction, snake, board_size):
+        if debug: print(f"{direction} has block off squares")
+        return False
+    return True
 
 def can_see_tail_a_star(square, snake, board_size):
     return a_star.a_Star(square, snake[-1], board_size, snake[:len(snake)-1]) != None
