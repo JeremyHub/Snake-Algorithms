@@ -3,9 +3,10 @@ import pygame
 import random
 import snake_ai
 
-# TODO add ability to keep track of hueristics and write them to a file
+# TODO add ability to keep track of hueristics
 class Board:
-    def __init__(self, width, height, screen, screen_size, debug=False):
+    def __init__(self, width, height, screen, screen_size, move_limit, debug=False):
+        self.move_limit = move_limit
         self.debug = debug
         self.width = width
         self.screen = screen
@@ -143,6 +144,7 @@ class Board:
         self.snake.append(tail2)
         self.direction = 'right'
         self.score = 0
+        self.num_moves = 0
         self.game_over = False
         self.generate_food()
     
@@ -151,16 +153,40 @@ class Board:
             if event.type == pygame.QUIT:
                 pygame.quit()
         self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height))
-        self.update()
-        # pygame.time.delay(10)
+        if self.update() or self.num_moves > self.move_limit:
+            return (self.score, self.num_moves)
+        # pygame.time.delay(100)
 
 if __name__ == '__main__':
     pygame.init()
     screen_size = 900
     board_size = 10
+    max_moves = (board_size**3)
     screen = pygame.display.set_mode((screen_size, screen_size))
-    board = Board(board_size, board_size, screen, screen_size)
-    human_input = False
-    # human_input = True
-    while human_input: board.run_with_human_input()
-    while not human_input: board.run_with_ai_input()
+    board = Board(board_size, board_size, screen, screen_size, max_moves)
+    running_type = 'ai'
+    num_games = 100
+    result_log = []
+    for i in range(num_games):
+        board.reset()
+        running = True
+        while running_type == 'human' and running:
+            result = board.run_with_human_input()
+            if result:
+                result_log.append(result)
+                running = False
+                print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
+        while running_type == 'ai' and running:
+            result = board.run_with_ai_input()
+            if result:
+                result_log.append(result)
+                running = False
+                print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
+    total_score = 0
+    total_moves = 0
+    for score, moves in result_log:
+        total_score += score
+        total_moves += moves
+    print(f'average score: {total_score / num_games}')
+    print(f'average moves: {total_moves / num_games}')
+    pygame.quit()
