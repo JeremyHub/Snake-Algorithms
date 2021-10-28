@@ -105,12 +105,9 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
         if not good_direction(direction, snake, board_size):
             continue
         # if it is a good direction, check all directions given that you go in that direction
+        snake_copy = get_snake_copy(snake, direction)
         for second_direction in directions.values():
             if debug: logging.info(f"looking at direction: {second_direction} from direction : {direction}")
-            # making a copy of snake and taking away the tail
-            snake_copy = snake.copy()[:len(snake)-1]
-            # putting in the new head for the first direction
-            snake_copy.insert(0, get_square_in_direction(snake[0], direction))
             # if that direction is good, add 1 to the dict where the key is the original direction
             if good_direction(second_direction, snake_copy, board_size):
                 # continue if it has blocked off squares
@@ -168,6 +165,13 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
     if debug: logging.info(f"best direction: {best_direction}")
     return best_direction
 
+def get_snake_copy(snake, direction):
+    # making a copy of snake and taking away the tail
+    snake_copy = snake.copy()[:len(snake)-1]
+    # putting in the new head for the first direction
+    snake_copy.insert(0, get_square_in_direction(snake[0], direction))
+    return snake_copy
+
 def check_for_any_blocked_off_squares(direction, snake, board_size):
     goal = get_square_in_direction(snake[0], direction)
     # for every neighbor
@@ -175,16 +179,16 @@ def check_for_any_blocked_off_squares(direction, snake, board_size):
         if square in snake or square == goal or out_of_bounds(square, board_size):
             continue
         # check if its enclosed
-        if square_is_enclosed(square, snake, board_size):
+        if square_is_enclosed(square, snake, board_size, 3):
             return True
     return False
 
-def square_is_enclosed(square, snake, board_size):
-    sides_block = 0
+def square_is_enclosed(square, snake, board_size, max_neighbors):
+    sides_blocked = 0
     for neighbor in get_cardinal_neighbors(square):
         if neighbor in snake or out_of_bounds(neighbor, board_size):
-            sides_block += 1
-    return sides_block >= 3
+            sides_blocked += 1
+    return sides_blocked >= max_neighbors
 
 def get_same_directions(directiosn1, directions2):
     intersection = []
@@ -237,6 +241,30 @@ def out_of_bounds(square, board_size):
     x, y = square
     return x < 0 or x >= board_size[0] or y < 0 or y >= board_size[1]
 
+def has_seperated_squares(direction, snake, board_size):
+    # snake_copy = get_snake_copy(snake, direction)
+    # for second_direction in directions.values():
+    #     square = get_square_in_direction(snake_copy[0], second_direction)
+    #     empty_squares = []
+    #     for x in range(board_size[0]):
+    #         for y in range(board_size[1]):
+    #             if (x, y) not in snake_copy[len(snake_copy)-1] and not (x, y) == square:
+    #                 empty_squares.append((x, y))
+    #     for empty_square in empty_squares:
+    #         if square_is_enclosed(empty_square, snake_copy, board_size, 4):
+    #             return True
+    square = get_square_in_direction(snake[0], direction)
+    empty_squares = []
+    for x in range(board_size[0]):
+        for y in range(board_size[1]):
+            if (x, y) not in snake and not (x, y) == square:
+                empty_squares.append((x, y))
+    for empty_square in empty_squares:
+        if not a_star.a_Star(square, empty_square, board_size, snake):
+            print(empty_square)
+            return True
+    return False
+
 def good_direction(direction, snake, board_size):
     does_intersect = intersects(direction, snake, board_size)
     if does_intersect:
@@ -246,6 +274,9 @@ def good_direction(direction, snake, board_size):
     if not see_tail:
         if debug: logging.info(f"{direction} cant see tail")
         return False
+    # if has_seperated_squares(direction, snake, board_size):
+    #     if debug: logging.info(f"{direction} blocked off")
+    #     return False
     return True
 
 def can_see_tail_a_star(square, snake, board_size):
