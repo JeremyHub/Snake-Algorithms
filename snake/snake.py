@@ -152,7 +152,7 @@ class Board:
             if event.type == pygame.QUIT:
                 pygame.quit()
         self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height))
-        if self.update() or self.num_moves > self.move_limit or self.game_over:
+        if self.num_moves > self.move_limit or self.game_over or self.update():
             return (self.score, self.num_moves)
         # pygame.time.delay(100)
 
@@ -160,7 +160,7 @@ if __name__ == '__main__':
     pygame.init()
     screen_size = 900
     board_size = 10
-    max_moves = (board_size**3) * 2.5
+    max_moves = (board_size**3) * 2
     screen = pygame.display.set_mode((screen_size, screen_size))
     board = Board(board_size, board_size, screen, screen_size, max_moves, debug=False, does_draw=True)
     board.run_with_human_input()
