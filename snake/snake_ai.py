@@ -35,14 +35,15 @@ diagnols = {
 }
 
 # TODO comment this function
-# TODO dissuade it from making squares which are blocked in on three sides (make sure to include edges)
+# maybe make it so that if the path to the snake is too long (maybe too long is longer than the diagnol path all the way across the board)
+#   then it makes the vector away from the food
 def get_action(snake, food, board_size):
     """
     Returns the move to be made by the snake.
     """
     if debug: logging.info("---------finding new move----------")
     path_to_food = a_star.a_Star(snake[0], food, board_size, snake)
-    if not path_to_food:
+    if not path_to_food or len(path_to_food) > board_size[0] + board_size[1]:
         vector_to_food = reverse_vector(normalize(get_vector_diagnols_from_head(snake, food)))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
     elif len(path_to_food) == 1:
@@ -53,6 +54,7 @@ def get_action(snake, food, board_size):
         vector_to_food = normalize(get_vector_diagnols_from_head(snake, food))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
     direction_choice = None
+    if debug: logging.info(f"snake: {snake}")
     if debug: logging.info(f"snake head: {snake[0]}")
     if debug: logging.info(f"snake tail: {snake[-1]}")
     if debug: logging.info(f"food: {food}")
@@ -61,7 +63,7 @@ def get_action(snake, food, board_size):
     else:
         direction_choice =  best_rand_direction(diagnols[vector_to_food], snake, board_size, path_to_food, food)
 
-    if path_to_food and len(path_to_food) < 5:
+    if path_to_food and len(path_to_food) < (board_size[0]+board_size[1]/4): # average of the width and height / 2
         vector_to_food = get_direction_names_from_vector(normalize(get_vector_diagnols_from_head(snake, food)))
         vector_away_from_tail = get_direction_names_from_vector(reverse_vector(normalize(get_vector_diagnols_from_head(snake, snake[-1]))))
         intersection = get_same_directions(vector_to_food, vector_away_from_tail)
@@ -77,7 +79,7 @@ def get_action(snake, food, board_size):
     possible_directions = list(directions.values())
     possible_directions.remove(direction_choice)
     while True:
-        if debug: logging.info(f"direction choice: {direction_choice}")
+        if debug: logging.info(f"checking direction: {direction_choice}")
         if good_direction(direction_choice, snake, board_size):
             if debug: logging.info(f"chosen direction: {direction_choice}")
             return direction_choice
@@ -97,7 +99,7 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
     if debug: logging.info(f"possible directions: {possible_directions}")
     good_directions_from_direction = {}
 
-    # loop over every direction given in the function
+    # loop over every direction given in the function to make the dict of how good each dir is
     for direction in possible_directions:
         # if its not a good direction then dont even look at it
         if not good_direction(direction, snake, board_size):
@@ -111,10 +113,17 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
             snake_copy.insert(0, get_square_in_direction(snake[0], direction))
             # if that direction is good, add 1 to the dict where the key is the original direction
             if good_direction(second_direction, snake_copy, board_size):
+                # continue if it has blocked off squares
+                if check_for_any_blocked_off_squares(second_direction, snake_copy, board_size):
+                    if debug: logging.info(f"{direction} has block off squares")
+                    good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
+                    continue
                 # add another 1 if it has a path to the food (just incentivzes this)
-                if has_path_to_food(second_direction, snake_copy, food, board_size):
+                elif has_path_to_food(second_direction, snake_copy, food, board_size):
                     good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0) + 1
+                # add one if its a good direction
                 good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0) + 1
+            # if its not a good direction, set it to 0
             else:
                 good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
 
@@ -122,7 +131,7 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
     best_direction_num = 0
     best_directions = []
 
-    # loop over the keys of the dict (the given directions that are good)
+    # loop over the keys of the dict (the given directions that are good) to find the best ones
     for direction in good_directions_from_direction.keys():
         # if the number of good directions from that direction is greater than the best direction num then add it to the lsit and set the best direction num to that number
         if good_directions_from_direction[direction] > best_direction_num:
@@ -237,10 +246,6 @@ def good_direction(direction, snake, board_size):
     if not see_tail:
         if debug: logging.info(f"{direction} cant see tail")
         return False
-    # probably cant have this here, as in there will be times where it has to block off a square
-    # if check_for_any_blocked_off_squares(direction, snake, board_size):
-    #     if debug: logging.info(f"{direction} has block off squares")
-    #     return False
     return True
 
 def can_see_tail_a_star(square, snake, board_size):

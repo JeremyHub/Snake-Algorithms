@@ -4,7 +4,8 @@ import random
 import snake_ai
 
 class Board:
-    def __init__(self, width, height, screen, screen_size, move_limit, debug=False):
+    def __init__(self, width, height, screen, screen_size, move_limit, debug=False, does_draw=True):
+        self.does_draw = does_draw
         self.move_limit = move_limit
         self.debug = debug
         self.width = width
@@ -21,7 +22,7 @@ class Board:
         self.reset()
 
     def generate_food(self):
-        for i in range(self.width*self.height*100):
+        for _ in range(self.width*self.height*100):
             x = random.randint(0, self.width - 1)
             y = random.randint(0, self.height - 1)
             if (x, y) not in self.snake:
@@ -49,7 +50,6 @@ class Board:
 
     def win(self):
         self.game_over = True
-        self.reset()
     
     def check_collision(self):
         head = self.snake[0]
@@ -107,7 +107,7 @@ class Board:
         self.check_collision()
         if self.game_over:
             self.reset()
-        self.draw()
+        if self.does_draw: self.draw()
         self.num_moves += 1
     
     def run_with_human_input(self):
@@ -142,7 +142,7 @@ class Board:
         tail2 = (self.snake[0][0] + 2, self.snake[0][1])
         self.snake.append(tail2)
         self.direction = 'right'
-        self.score = 0
+        self.score = len(self.snake)
         self.num_moves = 0
         self.game_over = False
         self.generate_food()
@@ -160,12 +160,14 @@ if __name__ == '__main__':
     pygame.init()
     screen_size = 900
     board_size = 10
-    max_moves = (board_size**3)
+    max_moves = (board_size**3) * 2.5
     screen = pygame.display.set_mode((screen_size, screen_size))
-    board = Board(board_size, board_size, screen, screen_size, max_moves)
+    board = Board(board_size, board_size, screen, screen_size, max_moves, debug=False, does_draw=True)
+    board.run_with_human_input()
     running_type = 'ai'
     num_games = 100
     result_log = []
+
     for i in range(num_games):
         board.reset()
         running = True
@@ -180,12 +182,23 @@ if __name__ == '__main__':
             if result:
                 result_log.append(result)
                 running = False
+                if result[0] < 50:
+                    while True: pass
                 print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
+
     total_score = 0
     total_moves = 0
+    max_score = 0
+    min_score = float('inf')
     for score, moves in result_log:
         total_score += score
         total_moves += moves
+        if score > max_score:
+            max_score = score
+        if score < min_score:
+            min_score = score
     print(f'average score: {total_score / num_games}')
     print(f'average moves: {total_moves / num_games}')
+    print(f'max score: {max_score}')
+    print(f'min score: {min_score}')
     pygame.quit()
