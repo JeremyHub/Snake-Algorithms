@@ -8,10 +8,9 @@ if debug:
     import os
     from os.path import exists
     import logging
-
-    if exists("log.txt"):
-        os.remove("log.txt")
-    file_path = "log.txt"
+    file_path = "ai_log.txt"
+    if exists(file_path):
+        os.remove(file_path)
     logging.basicConfig(filename=file_path,
                                 filemode='a',
                                 format='',
@@ -78,20 +77,15 @@ def get_action(snake, food, board_size):
 
     possible_directions = list(directions.values())
     possible_directions.remove(direction_choice)
-    while True:
+    while possible_directions:
         if debug: logging.info(f"checking direction: {direction_choice}")
         if good_direction(direction_choice, snake, board_size):
             if debug: logging.info(f"chosen direction: {direction_choice}")
             return direction_choice
-        else:
-            if possible_directions == []:
-                if debug:
-                    logging.info("No possible directions")
-                    while True:
-                        pass
-                return("none")
-            direction_choice = best_rand_direction(possible_directions, snake, board_size, path_to_food, food)
-            possible_directions.remove(direction_choice)
+        direction_choice = best_rand_direction(possible_directions, snake, board_size, path_to_food, food)
+        possible_directions.remove(direction_choice)
+    if debug: logging.info(f"no possible directions")
+    return "none"
 
 def best_rand_direction(original_options, snake, board_size, path_to_food, food):
     # re-assign possible directions
@@ -115,6 +109,11 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
                     if debug: logging.info(f"{direction} has block off squares")
                     good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
                     continue
+                # i feel like the following code would be good but its too slow
+                    # if has_seperated_squares(second_direction, snake_copy, board_size):
+                    #     if debug: logging.info(f"{direction} has seperated squares")
+                    #     good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
+                    #     continue
                 # add another 1 if it has a path to the food (just incentivzes this)
                 elif has_path_to_food(second_direction, snake_copy, food, board_size):
                     good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0) + 1
@@ -242,17 +241,6 @@ def out_of_bounds(square, board_size):
     return x < 0 or x >= board_size[0] or y < 0 or y >= board_size[1]
 
 def has_seperated_squares(direction, snake, board_size):
-    # snake_copy = get_snake_copy(snake, direction)
-    # for second_direction in directions.values():
-    #     square = get_square_in_direction(snake_copy[0], second_direction)
-    #     empty_squares = []
-    #     for x in range(board_size[0]):
-    #         for y in range(board_size[1]):
-    #             if (x, y) not in snake_copy[len(snake_copy)-1] and not (x, y) == square:
-    #                 empty_squares.append((x, y))
-    #     for empty_square in empty_squares:
-    #         if square_is_enclosed(empty_square, snake_copy, board_size, 4):
-    #             return True
     square = get_square_in_direction(snake[0], direction)
     empty_squares = []
     for x in range(board_size[0]):
@@ -261,7 +249,6 @@ def has_seperated_squares(direction, snake, board_size):
                 empty_squares.append((x, y))
     for empty_square in empty_squares:
         if not a_star.a_Star(square, empty_square, board_size, snake):
-            print(empty_square)
             return True
     return False
 
@@ -274,9 +261,6 @@ def good_direction(direction, snake, board_size):
     if not see_tail:
         if debug: logging.info(f"{direction} cant see tail")
         return False
-    # if has_seperated_squares(direction, snake, board_size):
-    #     if debug: logging.info(f"{direction} blocked off")
-    #     return False
     return True
 
 def can_see_tail_a_star(square, snake, board_size):

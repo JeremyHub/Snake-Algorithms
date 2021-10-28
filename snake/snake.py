@@ -2,6 +2,7 @@
 import pygame
 import random
 import snake_ai
+import logging
 
 class Board:
     def __init__(self, width, height, screen, screen_size, move_limit, debug=False, does_draw=True):
@@ -28,6 +29,7 @@ class Board:
             if (x, y) not in self.snake:
                 self.food = (x, y)
                 return True
+        if self.debug: logging.info("could not generate food")
         return False
 
     def move_snake(self):
@@ -103,6 +105,7 @@ class Board:
             self.direction = 'down'
     
     def update(self):
+        if self.debug: logging.info(f'updated: {self.num_moves} {self.direction}')
         self.move_snake()
         self.check_collision()
         if self.does_draw: self.draw()
@@ -134,6 +137,7 @@ class Board:
             pygame.time.delay(100)
         
     def reset(self):
+        if self.debug: logging.info('reset')
         self.snake = [(self.width // 2, self.height // 2)]
         tail = (self.snake[0][0] + 1, self.snake[0][1])
         self.snake.append(tail)
@@ -146,26 +150,36 @@ class Board:
         self.generate_food()
     
     def run_with_ai_input(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
+        if self.does_draw:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
         self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height))
+        if self.debug: logging.info(f'ai action: {self.direction}')
         if self.update() or self.num_moves > self.move_limit or self.game_over:
             to_return = (self.score, self.num_moves)
+            if self.debug: logging.info(f'game over: {to_return}')
             self.reset()
             return to_return
         # pygame.time.delay(100)
 
 if __name__ == '__main__':
-    pygame.init()
     screen_size = 900
-    board_size = 10
+    board_size = 30
     max_moves = (board_size**3) * 2
-    screen = pygame.display.set_mode((screen_size, screen_size))
-    board = Board(board_size, board_size, screen, screen_size, max_moves, debug=False, does_draw=True)
-    board.run_with_human_input()
+    does_draw = False
+    debug = True
+
+    if does_draw:
+        pygame.init()
+        screen = pygame.display.set_mode((screen_size, screen_size))
+    else:
+        screen = None
+
+    board = Board(board_size, board_size, screen, screen_size, max_moves, debug, does_draw)
+    logging.info(f'board: {board.width} {board.height}')
     running_type = 'ai'
-    num_games = 100
+    num_games = 150
     result_log = []
 
     for i in range(num_games):
@@ -188,9 +202,12 @@ if __name__ == '__main__':
 
     total_score = 0
     total_moves = 0
+    total_wins = 0
     max_score = 0
     min_score = float('inf')
     for score, moves in result_log:
+        if score == board_size[0]*board_size[1]:
+            total_wins += 1
         total_score += score
         total_moves += moves
         if score > max_score:
@@ -201,4 +218,5 @@ if __name__ == '__main__':
     print(f'average moves: {total_moves / num_games}')
     print(f'max score: {max_score}')
     print(f'min score: {min_score}')
+    print(f'win %: {total_wins / num_games}')
     pygame.quit()
