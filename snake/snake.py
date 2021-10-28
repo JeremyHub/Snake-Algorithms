@@ -105,8 +105,6 @@ class Board:
     def update(self):
         self.move_snake()
         self.check_collision()
-        if self.game_over:
-            self.reset()
         if self.does_draw: self.draw()
         self.num_moves += 1
     
@@ -152,8 +150,10 @@ class Board:
             if event.type == pygame.QUIT:
                 pygame.quit()
         self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height))
-        if self.num_moves > self.move_limit or self.game_over or self.update():
-            return (self.score, self.num_moves)
+        if self.update() or self.num_moves > self.move_limit or self.game_over:
+            to_return = (self.score, self.num_moves)
+            self.reset()
+            return to_return
         # pygame.time.delay(100)
 
 if __name__ == '__main__':
