@@ -168,7 +168,7 @@ if __name__ == '__main__':
     board_size = 10
     max_moves = (board_size**3) * 2.3
     does_draw = True
-    debug = True
+    debug = snake_ai.debug
 
     if does_draw:
         pygame.init()
