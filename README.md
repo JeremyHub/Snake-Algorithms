@@ -1,5 +1,5 @@
 # How to play
-Run the snake.py file. It is setup to play 100 games (visually) where the AI is controlling the snake.
+Run the snake.py file. It is setup to play games (visually) where the AI is controlling the snake.
 If you want to play the game for yourself, change the "running_type" variable to "human" rather than "ai".
 It will automatically create a debug file everytime you run the code (overwriting any previous log file). You can turn this off by changing the global variable at the top of the snake_ai.py file.
 
