@@ -18,4 +18,4 @@ At any point, there are many directions that fit the above condition, so the tas
 First and foremost, direction chosen will be the direction that goes in the direction of the snake.
 If there is no path to the food, it will choose the direction that is opposite of the food (this is to free up space near the food so that when it loops around it will be able to get it).
 There are also optimizations to favor directions that stick close to the body of the snake as well as directions that dont create voids (squares that the head cant get to).
-There are many further optimizations to prevent the snake from getting stuck in loops, even so, it does happen about 1% of the time (before ~90% coverage of the board).
+There are many further optimizations to prevent the snake from getting stuck in loops, even so, it does happen about 1% of the time (before ~85% coverage of the board).
