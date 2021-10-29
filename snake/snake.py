@@ -166,7 +166,7 @@ class Board:
 if __name__ == '__main__':
     screen_size = 900
     board_size = 10
-    max_moves = (board_size**3) * 2
+    max_moves = (board_size**3) * 2.3
     does_draw = True
     debug = True
 
@@ -196,8 +196,6 @@ if __name__ == '__main__':
             if result:
                 result_log.append(result)
                 running = False
-                if result[0] < 50:
-                    while True: pass
                 print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
 
     total_score = 0
