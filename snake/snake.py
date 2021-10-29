@@ -164,6 +164,7 @@ class Board:
         # pygame.time.delay(100)
 
 if __name__ == '__main__':
+    running_type = 'ai'
     screen_size = 900
     board_size = 10
     max_moves = (board_size**3) * 2.3
@@ -178,8 +179,7 @@ if __name__ == '__main__':
 
     board = Board(board_size, board_size, screen, screen_size, max_moves, debug, does_draw)
     logging.info(f'board: {board.width} {board.height}')
-    running_type = 'ai'
-    num_games = 150
+    num_games = 300
     result_log = []
 
     for i in range(num_games):
@@ -204,7 +204,7 @@ if __name__ == '__main__':
     max_score = 0
     min_score = float('inf')
     for score, moves in result_log:
-        if score == board_size[0]*board_size[1]:
+        if score == board_size**2:
             total_wins += 1
         total_score += score
         total_moves += moves
