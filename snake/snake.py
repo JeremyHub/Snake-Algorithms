@@ -165,9 +165,9 @@ class Board:
 
 if __name__ == '__main__':
     screen_size = 900
-    board_size = 30
+    board_size = 10
     max_moves = (board_size**3) * 2
-    does_draw = False
+    does_draw = True
     debug = True
 
     if does_draw:
