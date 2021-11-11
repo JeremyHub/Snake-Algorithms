@@ -33,9 +33,6 @@ diagnols = {
     (-1, -1): ("up", "left")
 }
 
-# TODO comment this function
-# maybe make it so that if the path to the snake is too long (maybe too long is longer than the diagnol path all the way across the board)
-#   then it makes the vector away from the food
 def get_action(snake, food, board_size):
     """
     Returns the move to be made by the snake.
