@@ -3,6 +3,7 @@ import pygame
 import random
 import snake_ai
 import logging
+import concurrent.futures
 
 class Board:
     def __init__(self, width, height, screen, screen_size, move_limit, debug=False, does_draw=True):
@@ -161,15 +162,26 @@ class Board:
             if self.debug: logging.info(f'game over: {to_return}')
             self.reset()
             return to_return
-        # pygame.time.delay(100)
+        # pygame.time.delay(50)
+
+def run_one_AI_game(name, board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw):
+    game = Board(board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw)
+    game.reset()
+    result = False
+    while not result:
+        result = game.run_with_ai_input()
+    print(f'Game {name} finished with score {result[0]} and {result[1]} moves')
+    return result
 
 if __name__ == '__main__':
     running_type = 'ai'
     screen_size = 900
     board_size = 10
     max_moves = (board_size**3) * 2.3
-    does_draw = True
+    does_draw = False
     debug = snake_ai.debug
+    num_games = 10000
+    result_log = []
 
     if does_draw:
         pygame.init()
@@ -177,33 +189,23 @@ if __name__ == '__main__':
     else:
         screen = None
 
-    board = Board(board_size, board_size, screen, screen_size, max_moves, debug, does_draw)
-    logging.info(f'board: {board.width} {board.height}')
-    num_games = 300
-    result_log = []
-
-    for i in range(num_games):
-        board.reset()
-        running = True
-        while running_type == 'human' and running:
-            result = board.run_with_human_input()
-            if result:
-                result_log.append(result)
-                running = False
-                print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
-        while running_type == 'ai' and running:
-            result = board.run_with_ai_input()
-            if result:
-                result_log.append(result)
-                running = False
-                print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
+    if running_type == 'human':
+        for i in range(num_games):
+            board = Board(board_size, board_size, screen, screen_size, max_moves, debug, does_draw)
+            board.run_with_human_input()
+    elif running_type == 'ai':
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            result_log = [executor.submit(run_one_AI_game, i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
+    else:
+        raise Exception('unknown running type')
 
     total_score = 0
     total_moves = 0
     total_wins = 0
     max_score = 0
     min_score = float('inf')
-    for score, moves in result_log:
+    for result in result_log:
+        score, moves = result.result()
         if score == board_size**2:
             total_wins += 1
         total_score += score

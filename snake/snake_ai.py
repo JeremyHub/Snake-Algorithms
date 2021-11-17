@@ -2,7 +2,7 @@ import random
 import a_star
 import math
 
-debug = True
+debug = False
 
 if debug:
     import os
@@ -17,14 +17,14 @@ if debug:
                                 datefmt='',
                                 level=logging.INFO)
 
-directions = {
+cardinals = {
     (0, 1): 'down',
     (0, -1): 'up',
     (1, 0): 'right',
     (-1, 0): 'left'
 }
 
-opposite_directions = dict([(value, key) for key, value in directions.items()])
+opposite_directions = dict([(value, key) for key, value in cardinals.items()])
 
 diagnols = {
     (1, 1): ("down", "right"),
@@ -35,22 +35,23 @@ diagnols = {
 
 def get_action(snake, food, board_size):
     """
-    Returns the move to be made by the snake.
+    Returns the move to be made by the snake for the given position.
     """
     if debug: logging.info("---------finding new move----------")
     path_to_food = a_star.a_Star(snake[0], food, board_size, snake)
     # if the food is not reachable then the vector is the opposite of the food (this is to free up space near the food)
     if not path_to_food or len(path_to_food) > board_size[0] + board_size[1]:
-        vector_to_food = reverse_vector(normalize(get_vector_diagnols_from_head(snake, food)))
+        vector_to_food = reverse_vector(normalize(get_diagnol_vector_from_head(snake, food)))
+        # vector_to_food = reverse_vector(normalize(get_diagnol_vector_from_head(snake, snake[-1])))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
     # if the food is one square away, go to it
     elif len(path_to_food) == 1:
-        vector_to_food = normalize(get_vector_diagnols_from_head(snake, path_to_food[0]))
-        if good_direction(directions[vector_to_food], snake, board_size):
-            return directions[vector_to_food]
+        vector_to_food = normalize(get_diagnol_vector_from_head(snake, path_to_food[0]))
+        if good_direction(cardinals[vector_to_food], snake, board_size):
+            return cardinals[vector_to_food]
     # otherwise the food is reachable and far, set the vector to the direction of the food
     else:
-        vector_to_food = normalize(get_vector_diagnols_from_head(snake, food))
+        vector_to_food = normalize(get_diagnol_vector_from_head(snake, food))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
     direction_choice = None
     if debug: logging.info(f"snake: {snake}")
@@ -58,16 +59,16 @@ def get_action(snake, food, board_size):
     if debug: logging.info(f"snake tail: {snake[-1]}")
     if debug: logging.info(f"food: {food}")
     # if its a cardinal direction then set the direction choice to that
-    if directions.get(vector_to_food, None):
-        direction_choice =  directions[vector_to_food]
+    if cardinals.get(vector_to_food, None):
+        direction_choice =  cardinals[vector_to_food]
     # if its a diagnol direction then set the direction choice to the best cardinal direction
     else:
         direction_choice =  best_rand_direction(diagnols[vector_to_food], snake, board_size, path_to_food, food)
     # if there is a path to the food and that path is small, then take the intersection of the path to the food and the path away from the tail
         # this is to prevent a lot of loop cases
     if path_to_food and len(path_to_food) < (board_size[0]+board_size[1]/4): # average of the width and height / 2
-        vector_to_food = get_direction_names_from_vector(normalize(get_vector_diagnols_from_head(snake, food)))
-        vector_away_from_tail = get_direction_names_from_vector(reverse_vector(normalize(get_vector_diagnols_from_head(snake, snake[-1]))))
+        vector_to_food = get_direction_names_from_vector(normalize(get_diagnol_vector_from_head(snake, food)))
+        vector_away_from_tail = get_direction_names_from_vector(reverse_vector(normalize(get_diagnol_vector_from_head(snake, snake[-1]))))
         intersection = get_same_directions(vector_to_food, vector_away_from_tail)
         if debug: logging.info(f"itnersections: {intersection}")
         # if there is only one intersection then set the direction choice to that
@@ -80,7 +81,7 @@ def get_action(snake, food, board_size):
             direction_choice = best_rand_direction(possible_directions, snake, board_size, path_to_food, food)
         if debug: logging.info(f"small path to food, doing vector away from tail, here are directions from that vector: {direction_choice}")
 
-    possible_directions = list(directions.values())
+    possible_directions = list(cardinals.values())
     possible_directions.remove(direction_choice)
     # this is the main loop to find a good direction (it goes through all directions)
     while possible_directions:
@@ -108,7 +109,7 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
             continue
         # if it is a good direction, check all directions given that you go in that direction
         snake_copy = get_snake_copy(snake, direction)
-        for second_direction in directions.values():
+        for second_direction in cardinals.values():
             if debug: logging.info(f"looking at direction: {second_direction} from direction : {direction}")
             # if that direction is good, add 1 to the dict where the key is the original direction
             if good_direction(second_direction, snake_copy, board_size):
@@ -205,8 +206,8 @@ def get_same_directions(directiosn1, directions2):
     return intersection
 
 def get_direction_names_from_vector(direction):
-    if directions.get(direction, None):
-        return [directions[direction]]
+    if cardinals.get(direction, None):
+        return [cardinals[direction]]
     else:
         return diagnols[direction]
 
@@ -225,7 +226,7 @@ def get_num_neighbors_in_snake(square, snake, board_size):
 def get_cardinal_neighbors(square):
     x, y = square
     neighbors = []
-    for direction in list(directions.keys()):
+    for direction in list(cardinals.keys()):
         neighbor = (x + direction[0], y + direction[1])
         neighbors.append(neighbor)
     return neighbors
@@ -236,7 +237,7 @@ def get_all_neighbors(square):
     """
     x, y = square
     neighbors = []
-    for direction in list(directions.keys()) + list(diagnols.keys()):
+    for direction in list(cardinals.keys()) + list(diagnols.keys()):
         neighbor = (x + direction[0], y + direction[1])
         neighbors.append(neighbor)
     return neighbors
@@ -291,13 +292,13 @@ def intersects(direction, snake, board_size):
 def reverse_vector(vector):
     return (-vector[0], -vector[1])
 
-def get_vector_nodiagnols_from_head(snake, food):
+def get_cardinal_vector_from_head(snake, food):
     """
     Returns the vector from the head of the snake to the food.
     """
     return (food[0] - snake[0][0], food[1] - snake[0][1])
 
-def get_vector_diagnols_from_head(snake, point):
+def get_diagnol_vector_from_head(snake, point):
     """
     Returns the vector to the point from the head, prefers diagnols.
     """
