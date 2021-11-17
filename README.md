@@ -7,7 +7,7 @@ The algorithm is faily good. It is also fairly expensive to run, especially on l
 To test the algorithm I ran it a few hundred times on a board of 10x10.
 There was a move limit of 2300 ((board_size**3) * 2.3), if it exeeded the move limit and had not won the game yet, it moved on to the next game.
 The average board coverage was 95%, and the average win rate was ~30%.
-As you can tell from the above numbers, the algorithm struggles to get the last few foods but is quite consitent in reaching that point.
+As you can tell from the above numbers, the algorithm struggles to get the last few foods but is quite consitent in reaching that point. The following histogram is from 300 games, the variable being measured is the score of the game at 2300 moves.
 ![image](https://user-images.githubusercontent.com/45571333/142139263-3e3236f9-635b-4df9-aa4d-b3fbec265e19.png)
 
 # How the AI works
