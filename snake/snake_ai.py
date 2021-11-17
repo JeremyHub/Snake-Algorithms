@@ -42,7 +42,6 @@ def get_action(snake, food, board_size):
     # if the food is not reachable then the vector is the opposite of the food (this is to free up space near the food)
     if not path_to_food or len(path_to_food) > board_size[0] + board_size[1]:
         vector_to_food = reverse_vector(normalize(get_diagnol_vector_from_head(snake, food)))
-        # vector_to_food = reverse_vector(normalize(get_diagnol_vector_from_head(snake, snake[-1])))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
     # if the food is one square away, go to it
     elif len(path_to_food) == 1:

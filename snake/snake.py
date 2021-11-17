@@ -14,7 +14,7 @@ class Board:
         self.screen = screen
         self.height = height
         self.food = None
-        self.direction = 'left'
+        self.direction = 'right'
         self.score = 0
         self.num_moves = 0
         self.scale = screen_size//max(width,height) - 10
@@ -113,6 +113,7 @@ class Board:
         self.num_moves += 1
     
     def run_with_human_input(self):
+        assert self.does_draw
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -131,19 +132,23 @@ class Board:
             for action in self.action_queue:
                 self.handle_input(action)
                 self.update()
-                pygame.time.delay(100)
+                pygame.time.delay(120)
             self.action_queue = []
         else:
             self.update()
-            pygame.time.delay(100)
+            pygame.time.delay(120)
+        if self.game_over:
+            result = (self.score, self.num_moves)
+            self.reset()
+            return result
         
     def reset(self):
         if self.debug: logging.info('reset')
         self.snake = [(self.width // 2, self.height // 2)]
         tail = (self.snake[0][0] + 1, self.snake[0][1])
         self.snake.append(tail)
-        tail2 = (self.snake[0][0] + 2, self.snake[0][1])
-        self.snake.append(tail2)
+        # tail2 = (self.snake[0][0] + 2, self.snake[0][1])
+        # self.snake.append(tail2)
         self.direction = 'right'
         self.score = len(self.snake)
         self.num_moves = 0
@@ -174,15 +179,18 @@ def run_one_AI_game(name, board_size_x, board_size_y, screen, screen_size, max_m
     return result
 
 if __name__ == '__main__':
+    # things you might want to change
+    # running_type = 'human'
     running_type = 'ai'
-    screen_size = 900
+    does_draw = True
+    num_games = 10
+
     board_size = 10
     max_moves = (board_size**3) * 2.3
-    does_draw = False
-    debug = snake_ai.debug
-    num_games = 10000
-    result_log = []
+    screen_size = 900
 
+    result_log = []
+    debug = snake_ai.debug
     if does_draw:
         pygame.init()
         screen = pygame.display.set_mode((screen_size, screen_size))
@@ -192,20 +200,28 @@ if __name__ == '__main__':
     if running_type == 'human':
         for i in range(num_games):
             board = Board(board_size, board_size, screen, screen_size, max_moves, debug, does_draw)
-            board.run_with_human_input()
-    elif running_type == 'ai':
+            result = False
+            while not result:
+                result = board.run_with_human_input()
+            print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
+            result_log.append(result)
+    elif running_type == 'ai' and not does_draw:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             result_log = [executor.submit(run_one_AI_game, i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
+    elif running_type == 'ai' and does_draw:
+        for i in range(num_games):
+            result_log.append(run_one_AI_game(i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw))
     else:
         raise Exception('unknown running type')
 
     total_score = 0
     total_moves = 0
     total_wins = 0
-    max_score = 0
+    max_score = float('-inf')
     min_score = float('inf')
     for result in result_log:
-        score, moves = result.result()
+        if running_type == 'ai' and not does_draw: score, moves = result.result()
+        else: score, moves = result
         if score == board_size**2:
             total_wins += 1
         total_score += score
