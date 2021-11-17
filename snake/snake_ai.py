@@ -115,9 +115,6 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
     good_directions_from_direction = {}
     # loop over every direction given in the function to make the dict of how good each dir is
     for direction in possible_directions:
-        # if its not a good direction then dont even look at it
-        if not good_direction(direction, snake, board_size):
-            continue
         # if it is a good direction, check all directions given that you go in that direction
         snake_copy = get_snake_copy(snake, direction)
         for second_direction in cardinals.values():
@@ -144,7 +141,7 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
                 good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
 
     if debug: logging.info(f"good directions from direction: {good_directions_from_direction}")
-    best_direction_num = 0
+    best_direction_num = float("-inf")
     best_directions = []
 
     # loop over the keys of the dict (the given directions that are good) to find the best ones
