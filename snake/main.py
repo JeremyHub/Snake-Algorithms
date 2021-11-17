@@ -2,6 +2,7 @@ import snake
 import pygame
 import concurrent.futures
 import snake_ai
+import plotille
 
 if __name__ == '__main__':
     # things you might want to change
@@ -44,9 +45,13 @@ if __name__ == '__main__':
     total_wins = 0
     max_score = float('-inf')
     min_score = float('inf')
+    all_moves = []
+    scores = []
     for result in result_log:
         if running_type == 'ai' and not does_draw: score, moves = result.result()
         else: score, moves = result
+        all_moves.append(moves)
+        scores.append(score)
         if score == board_size**2:
             total_wins += 1
         total_score += score
@@ -55,6 +60,21 @@ if __name__ == '__main__':
             max_score = score
         if score < min_score:
             min_score = score
+
+    fig = plotille.Figure()
+    fig.width = 60
+    fig.height = 30
+    fig.color_mode = 'byte'
+    fig.histogram(all_moves, bins=100)
+    print(fig.show(legend=True))
+
+    fig2 = plotille.Figure()
+    fig2.width = 60
+    fig2.height = 30
+    fig2.color_mode = 'byte'
+    fig2.histogram(scores, bins=100)
+    print(fig2.show(legend=True))
+
     print(f'average score: {total_score / num_games}')
     print(f'average moves: {total_moves / num_games}')
     print(f'max score: {max_score}')
