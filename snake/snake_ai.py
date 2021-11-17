@@ -97,10 +97,22 @@ def get_action(snake, food, board_size):
 
 def best_rand_direction(original_options, snake, board_size, path_to_food, food):
     # re-assign possible directions
-    possible_directions = original_options
+    possible_directions = []
+    for direction in original_options:
+        if good_direction(direction, snake, board_size):
+            possible_directions.append(direction)
     if debug: logging.info(f"possible directions: {possible_directions}")
-    good_directions_from_direction = {}
 
+    # if there are no good directions then return a random one just so the function thats calling this doesnt break, but its gonna move on anyway
+    if not possible_directions:
+        if debug: logging.info(f"no possible directions")
+        return random.choice(original_options)
+    # if there is only one possible direction then return that
+    if len(possible_directions) == 1:
+        if debug: logging.info(f"only one possible direction: {possible_directions[0]}")
+        return possible_directions[0]
+
+    good_directions_from_direction = {}
     # loop over every direction given in the function to make the dict of how good each dir is
     for direction in possible_directions:
         # if its not a good direction then dont even look at it
@@ -144,14 +156,9 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
         # otherwise if its equal then append that direction because its still in the running
         elif good_directions_from_direction[direction] == best_direction_num:
             best_directions.append(direction)
-
-    # if there are no good directions then return a random one just so the function thats calling this doesnt break, but its gonna move on anyway
-    if best_directions == []:
-        if debug: logging.info("no good directions")
-        return random.choice(possible_directions)
     
     # if there is one direction, return it
-    elif len(best_directions) == 1:
+    if len(best_directions) == 1:
         if debug: logging.info(f"best direction: {best_directions[0]}")
         return best_directions[0]
     
