@@ -7,7 +7,7 @@ It will automatically create a debug file everytime you run the code (overwritin
 The algorithm is faily good. It is also fairly expensive to run, especially on large boards.
 To test the algorithm I ran it a few hundred times on a board of 10x10.
 There was a move limit of 2300 ((board_size**3) * 2.3), if it exeeded the move limit and had not won the game yet, it moved on to the next game.
-The average board coverage was 95%, and the average win rate was ~25%.
+The average board coverage was 95%, and the average win rate was ~30%.
 As you can tell from the above numbers, the algorithm struggles to get the last few foods but is quite consitent in reaching that point.
 
 # How the AI works
