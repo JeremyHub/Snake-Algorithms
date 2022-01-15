@@ -50,7 +50,7 @@ def get_action(snake, food, board_size):
         if good_direction(cardinals[vector_to_food], snake, board_size):
             if debug: logging.info(f"one away from food, vector: {vector_to_food}")
             return cardinals[vector_to_food]
-    # otherwise the food is reachable and far, set the vector to the direction of the food
+    # otherwise the food is reachable and not too far, set the vector to the direction of the food
     else:
         vector_to_food = normalize(get_diagnol_vector_from_head(snake, food))
         if debug: logging.info(f"diagnol vector to food: {vector_to_food}")
