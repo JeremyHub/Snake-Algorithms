@@ -1,8 +1,9 @@
 import random
 import a_star
 import math
+import main
 
-debug = False
+debug = main.debug
 
 if debug:
     import os
@@ -39,7 +40,7 @@ def get_action(snake, food, board_size):
     """
     if debug: logging.info("---------finding new move----------")
     path_to_food = a_star.a_Star(snake[0], food, board_size, snake)
-    # if the food is not reachable then the vector is the opposite of the food (this is to free up space near the food)
+    # if the food is not reachable or very far then the vector is the opposite of the food (this is to free up space near the food)
     if not path_to_food or len(path_to_food) > board_size[0] + board_size[1]:
         vector_to_food = reverse_vector(normalize(get_diagnol_vector_from_head(snake, food)))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
@@ -47,11 +48,12 @@ def get_action(snake, food, board_size):
     elif len(path_to_food) == 1:
         vector_to_food = normalize(get_diagnol_vector_from_head(snake, path_to_food[0]))
         if good_direction(cardinals[vector_to_food], snake, board_size):
+            if debug: logging.info(f"one away from food, vector: {vector_to_food}")
             return cardinals[vector_to_food]
     # otherwise the food is reachable and far, set the vector to the direction of the food
     else:
         vector_to_food = normalize(get_diagnol_vector_from_head(snake, food))
-        if debug: logging.info(f"reverse vector to food: {vector_to_food}")
+        if debug: logging.info(f"diagnol vector to food: {vector_to_food}")
     direction_choice = None
     if debug: logging.info(f"snake: {snake}")
     if debug: logging.info(f"snake head: {snake[0]}")
@@ -69,16 +71,12 @@ def get_action(snake, food, board_size):
         vector_to_food = get_direction_names_from_vector(normalize(get_diagnol_vector_from_head(snake, food)))
         vector_away_from_tail = get_direction_names_from_vector(reverse_vector(normalize(get_diagnol_vector_from_head(snake, snake[-1]))))
         intersection = get_same_directions(vector_to_food, vector_away_from_tail)
-        if debug: logging.info(f"itnersections: {intersection}")
-        # if there is only one intersection then set the direction choice to that
-        if len(intersection) == 1:
-            possible_directions = [intersection]
-            direction_choice = intersection[0]
-        # if there are two intersections then set the direction choice to one of the two
+        if debug: logging.info(f"intersections: {intersection}")
+        # set the direction choice to one of the intersections
         if len(intersection) > 0:
             possible_directions = intersection
             direction_choice = best_rand_direction(possible_directions, snake, board_size, path_to_food, food)
-        if debug: logging.info(f"small path to food, doing vector away from tail, here are directions from that vector: {direction_choice}")
+            if debug: logging.info(f"small path to food, doing vector away from tail, directions from that vector: {direction_choice}")
 
     possible_directions = list(cardinals.values())
     possible_directions.remove(direction_choice)
@@ -92,7 +90,7 @@ def get_action(snake, food, board_size):
         # otherwise set the direction choice to the best direction in the remaining directions
         direction_choice = best_rand_direction(possible_directions, snake, board_size, path_to_food, food)
         possible_directions.remove(direction_choice)
-    if debug: logging.info(f"no possible directions")
+    if debug: logging.info(f"no possible directions, something went wrong")
     return "none"
 
 def best_rand_direction(original_options, snake, board_size, path_to_food, food):

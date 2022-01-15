@@ -4,12 +4,14 @@ import concurrent.futures
 import snake_ai
 import plotille
 
+debug = False
+
 if __name__ == '__main__':
     # things you might want to change
     # running_type = 'human'
     running_type = 'ai'
     does_draw = True
-    num_games = 10
+    num_games = 100
 
     board_size = 10
     max_moves = (board_size**3) * 2.3
