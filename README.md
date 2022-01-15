@@ -16,7 +16,7 @@ It has a lot of logic in it that is hard to explain but the code is commented wi
 Esentially, it is based on the principle of keeping the tail in sight at all times.
 As long as the tail is in sight at all times, the snake will never die (it will never make a move that leads to a situation in which the tail is not in sight or the head intersects the body or a wall).
 At any point, there are many directions that fit the above condition, so the task then is to choose the best direction.
-First and foremost, direction chosen will be the direction that goes in the direction of the snake.
+First and foremost, direction chosen will be the direction that goes in the direction of the food.
 If there is no path to the food, it will choose the direction that is opposite of the food (this is to free up space near the food so that when it loops around it will be able to get it).
 There are also optimizations to favor directions that stick close to the body of the snake as well as directions that dont create voids (squares that the head cant get to).
 There are many further optimizations to prevent the snake from getting stuck in loops, even so, it does happen about 1% of the time (esentially, it will get to ~80% board coverage about 99% of the time).
