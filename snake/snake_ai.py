@@ -198,6 +198,7 @@ def get_snake_copy(snake, direction):
     return snake_copy
 
 def check_for_any_blocked_off_squares(direction, snake, board_size):
+    # this function says "if you go in this direciton, are there any squares that are blocked off?"
     goal = get_square_in_direction(snake[0], direction)
     # for every neighbor
     for square in get_all_neighbors(goal):
