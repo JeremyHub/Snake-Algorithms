@@ -10,8 +10,8 @@ if __name__ == '__main__':
     # things you might want to change
     # running_type = 'human'
     running_type = 'ai'
-    does_draw = False
-    num_games = 1000
+    does_draw = True
+    num_games = 100
 
     board_size = 10
     max_moves = (board_size**3) * 2.3
