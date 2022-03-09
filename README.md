@@ -5,7 +5,7 @@ If you want to play the game for yourself, change the "running_type" variable to
 # Results
 The algorithm is faily good. It is also fairly expensive to run, especially on large boards.
 To test the algorithm I ran it a few thousand times on a board of 10x10.
-There was a move limit of 2300 ((board_size**3) * 2.3), if it exeeded the move limit and had not won the game yet, it moved on to the next game.
+There was a move limit of ~2300 ((board_size**3.36)), if it exeeded the move limit and had not won the game yet, it moved on to the next game.
 The average board coverage was 95%, and the average win rate was ~25%.
 As you can tell from the above numbers, the algorithm struggles to get the last few foods but is quite consitent in reaching that point. The following histogram is from 20000 games, the variable being measured is the score of the game at 2300 moves.
 ![image](https://user-images.githubusercontent.com/45571333/142269480-553033ac-2f87-406b-a180-f69285913923.png)
