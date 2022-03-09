@@ -1,7 +1,6 @@
 import snake
 import pygame
 import concurrent.futures
-import snake_ai
 import plotille
 
 debug = False
