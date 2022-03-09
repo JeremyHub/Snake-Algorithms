@@ -119,7 +119,7 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
 
     # if there are no good directions then return a random one just so the function thats calling this doesnt break, but its gonna move on anyway
     if not possible_directions:
-        if debug: logging.info(f"no possible directions")
+        if debug: logging.info(f"none of the options work, returning random")
         return random.choice(original_options)
     # if there is only one possible direction then return that
     if len(possible_directions) == 1:
