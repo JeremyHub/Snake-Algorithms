@@ -12,8 +12,8 @@ if __name__ == '__main__':
     does_draw = True
     num_games = 100
 
-    board_size = 10
-    max_moves = (board_size**3) * 2.3
+    board_size = 15
+    max_moves = (board_size**3.36)
     screen_size = 900
 
     result_log = []
@@ -31,10 +31,10 @@ if __name__ == '__main__':
                 result = board.run_with_human_input()
             print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
             result_log.append(result)
-    elif running_type == 'ai' and not does_draw:
+    elif running_type == 'ai' and not does_draw and not debug:
         with concurrent.futures.ProcessPoolExecutor() as executor:
             result_log = [executor.submit(snake.run_one_AI_game, i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
-    elif running_type == 'ai' and does_draw:
+    elif running_type == 'ai' and (does_draw or debug):
         for i in range(num_games):
             result_log.append(snake.run_one_AI_game(i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw))
     else:
