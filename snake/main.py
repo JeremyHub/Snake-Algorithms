@@ -18,7 +18,6 @@ if __name__ == '__main__':
     screen_size = 900
 
     result_log = []
-    debug = snake_ai.debug
     if does_draw:
         pygame.init()
         screen = pygame.display.set_mode((screen_size, screen_size))
