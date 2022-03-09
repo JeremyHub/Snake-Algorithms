@@ -327,4 +327,4 @@ def has_path_to_food(direction, snake, board_size, food):
     y = snake[0][1] + opposite_directions[direction][1]
     if x == food[0] and y == food[1]:
         return True
-    return not a_star.a_Star((x,y), food, board_size, snake[1:]) == None
+    return a_star.a_Star((x,y), food, board_size, snake[1:]) != None
