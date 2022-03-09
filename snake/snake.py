@@ -66,10 +66,37 @@ class Board:
         self.screen.fill((0, 0, 0))
         pygame.draw.rect(self.screen, (0, 0, 255), (self.snake[0][0] * self.scale + self.padding, self.snake[0][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
         pygame.draw.rect(self.screen, (255, 255, 255), (self.snake[-1][0] * self.scale + self.padding, self.snake[-1][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))        
-        redness = 255
+        transition_stage = 0
+        r = 0
+        g = 0
+        b = 255
         for x, y in self.snake[1:len(self.snake)-1]:
-            redness = redness - 20 if redness-20 > 0 else 0
-            pygame.draw.rect(self.screen, (redness, 255, 0), (x * self.scale + self.padding, y * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
+            if transition_stage == 0:
+                g += 255//(len(self.snake)-2)
+                if g >= 255:
+                    transition_stage = 1
+            elif transition_stage == 1:
+                # r -= 255//(len(self.snake)-2)
+                # if r <= 0:
+                    transition_stage = 2
+            elif transition_stage == 2:
+                b += 255//(len(self.snake)-2)
+                if b >= 255:
+                    transition_stage = 3
+            elif transition_stage == 3:
+                g -= 255//(len(self.snake)-2)
+                if g <= 0:
+                    transition_stage = 4
+            elif transition_stage == 4:
+                # r += 255//(len(self.snake)-2)
+                # if r >= 255:
+                    transition_stage = 5
+            elif transition_stage == 5:
+                b -= 255//(len(self.snake)-2)
+                if b <= 0:
+                    transition_stage = 0
+            pygame.draw.rect(self.screen, (r, g, b), (x * self.scale + self.padding, y * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
+        
         pygame.draw.rect(self.screen, (255, 0, 0), (self.food[0] * self.scale + self.padding, self.food[1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
 
         # draw score
