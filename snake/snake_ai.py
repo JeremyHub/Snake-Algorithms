@@ -59,12 +59,12 @@ def get_action(snake, food, board_size):
     if not path_to_food or len(path_to_food) > board_size[0] + board_size[1]:
         vector_to_food = reverse_vector(normalize(get_diagnol_vector_from_head(snake, food)))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
-    # if the food is one square away, go to it
-    elif len(path_to_food) == 1:
-        vector_to_food = normalize(get_diagnol_vector_from_head(snake, path_to_food[0]))
-        if good_direction(cardinals[vector_to_food], snake, board_size):
-            if debug: logging.info(f"one away from food, vector: {vector_to_food}")
-            return cardinals[vector_to_food]
+    # if the food is one square away, go to it (this is commented out because its worse to have it in)
+    # elif len(path_to_food) == 1:
+    #     vector_to_food = normalize(get_diagnol_vector_from_head(snake, path_to_food[0]))
+    #     if good_direction(cardinals[vector_to_food], snake, board_size):
+    #         if debug: logging.info(f"one away from food, vector: {vector_to_food}")
+    #         return cardinals[vector_to_food]
     # otherwise the food is reachable and not too far, set the vector to the direction of the food
     else:
         vector_to_food = normalize(get_diagnol_vector_from_head(snake, food))
@@ -74,23 +74,27 @@ def get_action(snake, food, board_size):
     # this section is to pick a direction from the previously gotten vector
 
     direction_choice = None
+    # if there is a path to the food and that path is small, then take the intersection of the path to the food and the path away from the tail
+        # this is to prevent a lot of loop cases
     # if its a cardinal direction then set the direction choice to that
     if cardinals.get(vector_to_food, None):
         direction_choice =  cardinals[vector_to_food]
+        if debug: logging.info(f"cardinal vector to food: {direction_choice}")
     # if its a diagnol direction then set the direction choice to the best cardinal direction
     else:
         direction_choice =  best_rand_direction(diagnols[vector_to_food], snake, board_size, path_to_food, food)
-    # if there is a path to the food and that path is small, then take the intersection of the path to the food and the path away from the tail
-        # this is to prevent a lot of loop cases
+        if debug: logging.info(f"diagnol vector to food: {direction_choice}")
     if path_to_food and len(path_to_food) < (board_size[0]+board_size[1]/4): # average of the width and height / 2
         vector_to_food = get_direction_names_from_vector(normalize(get_diagnol_vector_from_head(snake, food)))
         vector_away_from_tail = get_direction_names_from_vector(reverse_vector(normalize(get_diagnol_vector_from_head(snake, snake[-1]))))
         intersection = get_same_directions(vector_to_food, vector_away_from_tail)
         if debug: logging.info(f"intersections: {intersection}")
         # set the direction choice to one of the intersections
+            # if there are no intersections, then keep the previous direction choice
         if len(intersection) > 0:
             direction_choice = best_rand_direction(intersection, snake, board_size, path_to_food, food)
             if debug: logging.info(f"small path to food, doing vector away from tail, directions from that vector: {direction_choice}")
+
 
     # this section is to pick a direction
 
