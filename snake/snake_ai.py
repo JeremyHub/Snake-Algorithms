@@ -44,6 +44,9 @@ def get_action(snake, food, board_size):
     if debug: logging.info(f"snake tail: {snake[-1]}")
     if debug: logging.info(f"food: {food}")
 
+    # code for picking random moves that dont kill the snake (mostly just for debugging and comparison)
+    # return random.choice([i for i in filter(lambda seq: good_direction(seq,snake,board_size), list(cardinals.values()))])
+
     # check if there is only one direction to go (to make it faster in the late game)
     if len(snake) > (board_size[0]**2)*0.8:
         possible_directions = [i for i in filter(lambda seq: good_direction(seq,snake,board_size), list(cardinals.values()))]
@@ -59,12 +62,20 @@ def get_action(snake, food, board_size):
     if not path_to_food or len(path_to_food) > board_size[0] + board_size[1]:
         vector_to_food = reverse_vector(normalize(get_diagnol_vector_from_head(snake, food)))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
-    # if the food is one square away, go to it (this is commented out because its worse to have it in)
-    # elif len(path_to_food) == 1:
-    #     vector_to_food = normalize(get_diagnol_vector_from_head(snake, path_to_food[0]))
-    #     if good_direction(cardinals[vector_to_food], snake, board_size):
-    #         if debug: logging.info(f"one away from food, vector: {vector_to_food}")
-    #         return cardinals[vector_to_food]
+    # if the food is one square away, and we cant reach it, go away from the tail (this is to prevent some edge loop cases)
+    elif len(path_to_food) == 1:
+        vector_to_food = normalize(get_diagnol_vector_from_head(snake, path_to_food[0]))
+        if good_direction(cardinals[vector_to_food], snake, board_size):
+            # previously i had this line to tell it to go for the food if it could and was one away, but that was worse than commenting it out
+            # if debug: logging.info(f"one away from food, vector: {vector_to_food}")
+            # return cardinals[vector_to_food]
+            pass
+        else:
+            vector_away_from_tail = get_direction_names_from_vector(reverse_vector(normalize(get_diagnol_vector_from_head(snake, snake[-1]))))
+            possible_direction = best_rand_direction(vector_away_from_tail)
+            if good_direction(possible_direction):
+                if debug: logging.info(f"one away from food, but that direction is bad, so going away from tail instead: chosen direction: {possible_direction}")
+                return possible_direction
     # otherwise the food is reachable and not too far, set the vector to the direction of the food
     else:
         vector_to_food = normalize(get_diagnol_vector_from_head(snake, food))

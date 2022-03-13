@@ -6,18 +6,21 @@ import plotille
 debug = False
 
 if __name__ == '__main__':
+
     # things you might want to change
+
     # running_type = 'human'
     running_type = 'ai'
-    does_draw = True
-    num_games = 100
+    # running_type = 'debug_ai'
+    does_draw = False
+    num_games = 1000
+    board_size = 10
 
-    board_size = 15
     max_moves = (board_size**3.36)
     screen_size = 900
 
     result_log = []
-    if does_draw:
+    if does_draw or running_type == 'debug_ai':
         pygame.init()
         screen = pygame.display.set_mode((screen_size, screen_size))
     else:
@@ -37,6 +40,19 @@ if __name__ == '__main__':
     elif running_type == 'ai' and (does_draw or debug):
         for i in range(num_games):
             result_log.append(snake.run_one_AI_game(i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw))
+    elif running_type == 'debug_ai':
+        for i in range(num_games):
+            game = snake.Board(board_size, board_size, screen, screen_size, max_moves, debug, does_draw, True)
+            result = False
+            while not result:
+                result = game.run_with_ai_input()
+            if result[0] < 20:
+                foods = game.foods
+                moves = game.moves
+                while True:
+                    game.reconstruct_game(moves.copy(), foods.copy())
+            else:
+                print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
     else:
         raise Exception('unknown running type')
 
@@ -48,7 +64,7 @@ if __name__ == '__main__':
     all_moves = []
     scores = []
     for result in result_log:
-        if running_type == 'ai' and not does_draw: score, moves = result.result()
+        if running_type == 'ai' and not (does_draw or debug): score, moves = result.result()
         else: score, moves = result
         all_moves.append(moves)
         scores.append(score)

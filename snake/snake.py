@@ -5,13 +5,18 @@ import snake_ai
 import logging
 
 class Board:
-    def __init__(self, width, height, screen, screen_size, move_limit, debug=False, does_draw=True):
+    def __init__(self, width, height, screen, screen_size, move_limit, debug=False, does_draw=True, log_moves=False):
         self.does_draw = does_draw
         self.move_limit = move_limit
         self.debug = debug
         self.width = width
         self.screen = screen
         self.height = height
+        self.log_moves = log_moves
+        self.recreating = False
+        if self.log_moves:
+            self.foods = []
+            self.moves = []
         self.food = None
         self.direction = 'right'
         self.score = 0
@@ -28,6 +33,7 @@ class Board:
             y = random.randint(0, self.height - 1)
             if (x, y) not in self.snake:
                 self.food = (x, y)
+                if self.log_moves: self.foods.append(self.food)
                 return True
         if self.debug: logging.info("could not generate food")
         return False
@@ -47,8 +53,10 @@ class Board:
             self.score += 1
             if not self.generate_food():
                 self.win()
+            return True
         else:
             self.snake.pop()
+            return False
 
     def win(self):
         self.game_over = True
@@ -63,6 +71,10 @@ class Board:
             self.game_over = True
     
     def draw(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
         self.screen.fill((0, 0, 0))
         pygame.draw.rect(self.screen, (0, 0, 255), (self.snake[0][0] * self.scale + self.padding, self.snake[0][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
         pygame.draw.rect(self.screen, (255, 255, 255), (self.snake[-1][0] * self.scale + self.padding, self.snake[-1][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))        
@@ -133,17 +145,17 @@ class Board:
     
     def update(self):
         if self.debug: logging.info(f'updated: {self.num_moves} {self.direction}')
-        self.move_snake()
+        if self.log_moves: self.moves.append(self.direction)
+        ate_food = self.move_snake()
         self.check_collision()
-        if self.does_draw: self.draw()
+        if self.does_draw and not self.recreating: self.draw()
         self.num_moves += 1
+        return ate_food
     
     def run_with_human_input(self):
         assert self.does_draw
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            elif event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
                     self.action_queue.append('right')
                 elif event.key == pygame.K_LEFT:
@@ -182,19 +194,30 @@ class Board:
         self.generate_food()
     
     def run_with_ai_input(self):
-        if self.does_draw:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
         self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height))
         if self.debug: logging.info(f'ai action: {self.direction}')
-        if self.update() or self.num_moves > self.move_limit or self.game_over:
+        self.update()
+        if self.num_moves > self.move_limit or self.game_over:
             to_return = (self.score, self.num_moves)
             if self.debug: logging.info(f'game over: {to_return}')
             self.reset()
             return to_return
-        # pygame.time.delay(50)
+        return None
+    
+    def reconstruct_game(self, moves, foods):
+        self.log_moves = False
+        self.does_draw = True
+        self.reset()
+        self.recreating = True
+        self.food = foods.pop(0)
+        for move in moves:
+            self.direction = move
+            if self.update() and len(self.food)>0: self.food = foods.pop(0)
+            self.draw()
+            pygame.time.delay(30)
 
+        
+# needs a function so that thread pool can use it, thats why its not a method (too lazy to write a lamba for threading to use)
 def run_one_AI_game(name, board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw):
     game = Board(board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw)
     game.reset()
