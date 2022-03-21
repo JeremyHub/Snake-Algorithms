@@ -215,14 +215,3 @@ class Board:
             if self.update() and len(self.food)>0: self.food = foods.pop(0)
             self.draw()
             pygame.time.delay(30)
-
-        
-# needs a function so that thread pool can use it, thats why its not a method (too lazy to write a lamba for threading to use)
-def run_one_AI_game(name, board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw):
-    game = Board(board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw)
-    game.reset()
-    result = False
-    while not result:
-        result = game.run_with_ai_input()
-    print(f'Game {name} finished with score {result[0]} and {result[1]} moves')
-    return result

@@ -62,7 +62,7 @@ def get_action(snake, food, board_size):
     if not path_to_food or len(path_to_food) > board_size[0] + board_size[1]:
         vector_to_food = reverse_vector(normalize(get_diagnol_vector_from_head(snake, food)))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
-    # if the food is one square away, and we cant reach it, go away from the tail (this is to prevent some edge loop cases)
+    # if the food is one square away, and we cant reach it by going in its directino, go away from the tail (this is to prevent some edge loop cases)
     elif len(path_to_food) == 1:
         vector_to_food = normalize(get_diagnol_vector_from_head(snake, path_to_food[0]))
         if good_direction(cardinals[vector_to_food], snake, board_size):

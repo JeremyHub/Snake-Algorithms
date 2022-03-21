@@ -1,7 +1,18 @@
+from tkinter.tix import TCL_ALL_EVENTS
 import snake
 import pygame
 import concurrent.futures
 import plotille
+
+# functions for threapool to use below
+def run_one_AI_game(name, board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw):
+    game = snake.Board(board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw)
+    game.reset()
+    result = False
+    while not result:
+        result = game.run_with_ai_input()
+    print(f'Game {name} finished with score {result[0]} and {result[1]} moves')
+    return result
 
 debug = False
 
@@ -11,10 +22,10 @@ if __name__ == '__main__':
 
     # running_type = 'human'
     running_type = 'ai'
-    # running_type = 'debug_ai'
-    does_draw = False
-    num_games = 1000
-    board_size = 10
+    # running_type = 'replay_under_20_ai'
+    does_draw = True
+    num_games = 100
+    board_size = 15
 
     max_moves = (board_size**3.36)
     screen_size = 900
@@ -36,11 +47,11 @@ if __name__ == '__main__':
             result_log.append(result)
     elif running_type == 'ai' and not does_draw and not debug:
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            result_log = [executor.submit(snake.run_one_AI_game, i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
+            result_log = [executor.submit(run_one_AI_game, i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
     elif running_type == 'ai' and (does_draw or debug):
         for i in range(num_games):
-            result_log.append(snake.run_one_AI_game(i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw))
-    elif running_type == 'debug_ai':
+            result_log.append(run_one_AI_game(i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw))
+    elif running_type == 'replay_under_20_ai':
         for i in range(num_games):
             game = snake.Board(board_size, board_size, screen, screen_size, max_moves, debug, does_draw, True)
             result = False
@@ -95,5 +106,5 @@ if __name__ == '__main__':
     print(f'average moves: {total_moves / num_games}')
     print(f'max score: {max_score}')
     print(f'min score: {min_score}')
-    print(f'win %: {total_wins / num_games}')
+    print(f'win %: {100*total_wins / num_games}')
     pygame.quit()
