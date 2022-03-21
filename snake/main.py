@@ -25,9 +25,9 @@ if __name__ == '__main__':
     # running_type = 'replay_under_20_ai'
     does_draw = True
     num_games = 100
-    board_size = 15
+    board_size = (15, 15)
 
-    max_moves = (board_size**3.36)
+    max_moves = ((board_size[0]*board_size[1])**(3.36/2))
     screen_size = 900
 
     result_log = []
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     if running_type == 'human':
         for i in range(num_games):
-            board = snake.Board(board_size, board_size, screen, screen_size, max_moves, debug, does_draw)
+            board = snake.Board(board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw)
             result = False
             while not result:
                 result = board.run_with_human_input()
@@ -47,13 +47,13 @@ if __name__ == '__main__':
             result_log.append(result)
     elif running_type == 'ai' and not does_draw and not debug:
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            result_log = [executor.submit(run_one_AI_game, i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
+            result_log = [executor.submit(run_one_AI_game, i, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
     elif running_type == 'ai' and (does_draw or debug):
         for i in range(num_games):
-            result_log.append(run_one_AI_game(i, board_size, board_size, screen, screen_size, max_moves, debug, does_draw))
+            result_log.append(run_one_AI_game(i, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw))
     elif running_type == 'replay_under_20_ai':
         for i in range(num_games):
-            game = snake.Board(board_size, board_size, screen, screen_size, max_moves, debug, does_draw, True)
+            game = snake.Board(board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw, True)
             result = False
             while not result:
                 result = game.run_with_ai_input()
@@ -79,7 +79,7 @@ if __name__ == '__main__':
         else: score, moves = result
         all_moves.append(moves)
         scores.append(score)
-        if score == board_size**2:
+        if score == board_size[0] * board_size[1]:
             total_wins += 1
         total_score += score
         total_moves += moves
