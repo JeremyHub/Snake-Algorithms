@@ -28,15 +28,18 @@ class Board:
         self.reset()
 
     def generate_food(self):
-        for _ in range(self.width*self.height*100):
-            x = random.randint(0, self.width - 1)
-            y = random.randint(0, self.height - 1)
-            if (x, y) not in self.snake:
-                self.food = (x, y)
-                if self.log_moves: self.foods.append(self.food)
-                return True
-        if self.debug: logging.info("could not generate food")
-        return False
+        possible_squares = []
+        for x in range(self.width):
+            for y in range(self.height):
+                possible_squares.append((x, y))
+        for x, y in self.snake:
+            possible_squares.remove((x, y))
+        if len(possible_squares) == 0:
+            if self.debug: logging.info("could not generate food")
+            return False
+        self.food = random.choice(possible_squares)
+        if self.log_moves: self.foods.append(self.food)
+        return True
 
     def move_snake(self):
         head = self.snake[0]
