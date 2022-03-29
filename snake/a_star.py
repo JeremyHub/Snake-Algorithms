@@ -5,7 +5,7 @@ def reconstruct_path(cameFrom, current):
         total_path.insert(0, current)
     return total_path
 
-def a_Star(start, goal, board_size, snake_body, debug=False):
+def a_Star(start, goal, board_size, snake_body, *, debug=False):
     openSet = [start]
     cameFrom = {}
     gScore = {}

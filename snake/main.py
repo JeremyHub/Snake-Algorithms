@@ -4,9 +4,9 @@ import pygame
 import concurrent.futures
 import plotille
 
-# functions for threapool to use below
+# function for threapool to use
 def run_one_AI_game(name, board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw):
-    game = snake.Board(board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw)
+    game = snake.Board(board_size_x, board_size_y, screen, screen_size, max_moves, debug=debug, does_draw=does_draw)
     game.reset()
     result = False
     while not result:

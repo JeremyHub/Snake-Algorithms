@@ -5,7 +5,7 @@ import snake_ai
 import logging
 
 class Board:
-    def __init__(self, width, height, screen, screen_size, move_limit, debug=False, does_draw=True, log_moves=False):
+    def __init__(self, width, height, screen, screen_size, move_limit, *, debug=False, does_draw=True, log_moves=False):
         self.does_draw = does_draw
         self.move_limit = move_limit
         self.debug = debug
