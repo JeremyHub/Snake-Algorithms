@@ -188,11 +188,10 @@ class Board:
         self.generate_food()
 
     def run_with_ai_input(self, ai_type):
-        if ai_type == 'path': return self.run_with_path_ai_input()
-        elif ai_type == 'tail': return self.run_with_tail_ai_input()
-    
-    def run_with_tail_ai_input(self):
-        self.direction = snake_ai_tail.get_action(self.snake, self.food, (self.width, self.height))
+        if ai_type == 'path': direction = self.run_with_path_ai_input()
+        elif ai_type == 'tail': direction = self.run_with_tail_ai_input()
+        elif ai_type == 'random': direction = self.run_with_random_ai_input()
+        self.direction = direction
         if self.debug: logging.info(f'ai action: {self.direction}')
         self.update()
         if self.num_moves > self.move_limit or self.game_over:
@@ -201,9 +200,15 @@ class Board:
             self.reset()
             return to_return
         return None
+    
+    def run_with_tail_ai_input(self):
+        return snake_ai_tail.get_action(self.snake, self.food, (self.width, self.height))
 
     def run_with_path_ai_input(self):
         pass
+
+    def run_with_random_ai_input(self):
+        return random.choice(['right', 'left', 'up', 'down'])
     
     def reconstruct_game(self, moves, foods):
         self.log_moves = False
