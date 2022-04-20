@@ -1,7 +1,7 @@
 # snake game with pygame
 import pygame
 import random
-import snake_ai
+import snake_ai_tail
 import logging
 
 class Board:
@@ -186,9 +186,13 @@ class Board:
         self.num_moves = 0
         self.game_over = False
         self.generate_food()
+
+    def run_with_ai_input(self, ai_type):
+        if ai_type == 'path': return self.run_with_path_ai_input()
+        elif ai_type == 'tail': return self.run_with_tail_ai_input()
     
-    def run_with_ai_input(self):
-        self.direction = snake_ai.get_action(self.snake, self.food, (self.width, self.height))
+    def run_with_tail_ai_input(self):
+        self.direction = snake_ai_tail.get_action(self.snake, self.food, (self.width, self.height))
         if self.debug: logging.info(f'ai action: {self.direction}')
         self.update()
         if self.num_moves > self.move_limit or self.game_over:
@@ -197,6 +201,9 @@ class Board:
             self.reset()
             return to_return
         return None
+
+    def run_with_path_ai_input(self):
+        pass
     
     def reconstruct_game(self, moves, foods):
         self.log_moves = False

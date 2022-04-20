@@ -1,16 +1,15 @@
-from tkinter.tix import TCL_ALL_EVENTS
 import snake
 import pygame
 import concurrent.futures
 import plotille
 
 # function for threapool to use
-def run_one_AI_game(name, board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw):
+def run_one_AI_game(name, ai_type, board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw):
     game = snake.Board(board_size_x, board_size_y, screen, screen_size, max_moves, debug=debug, does_draw=does_draw)
     game.reset()
     result = False
     while not result:
-        result = game.run_with_ai_input()
+        result = game.run_with_ai_input(ai_type)
     print(f'Game {name} finished with score {result[0]} and {result[1]} moves')
     return result
 
@@ -23,9 +22,11 @@ if __name__ == '__main__':
     # running_type = 'human'
     running_type = 'ai'
     # running_type = 'replay_under_20_ai'
-    does_draw = True
+    does_draw = False
     num_games = 100
     board_size = (15, 15)
+    ai_type = 'tail'
+    # ai_type = 'path'
 
     max_moves = ((board_size[0]*board_size[1])**(3.36/2))
     screen_size = 900
@@ -47,10 +48,10 @@ if __name__ == '__main__':
             result_log.append(result)
     elif running_type == 'ai' and not does_draw and not debug:
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            result_log = [executor.submit(run_one_AI_game, i, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
+            result_log = [executor.submit(run_one_AI_game, ai_type, i, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
     elif running_type == 'ai' and (does_draw or debug):
         for i in range(num_games):
-            result_log.append(run_one_AI_game(i, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw))
+            result_log.append(run_one_AI_game(i, ai_type, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw))
     elif running_type == 'replay_under_20_ai':
         for i in range(num_games):
             game = snake.Board(board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw, True)
