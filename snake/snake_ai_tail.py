@@ -9,7 +9,7 @@ if debug:
     import os
     from os.path import exists
     import logging
-    file_path = "ai_log.txt"
+    file_path = "tail_ai_log.txt"
     if exists(file_path):
         os.remove(file_path)
     logging.basicConfig(filename=file_path,
