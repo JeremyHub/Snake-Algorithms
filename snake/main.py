@@ -1,4 +1,3 @@
-from tkinter.tix import TCL_ALL_EVENTS
 import snake
 import pygame
 import concurrent.futures
