@@ -1,8 +1,9 @@
 import random
 import a_star
 import math
-import main
+import helpers
 
+import main
 debug = main.debug
 
 if debug:
@@ -18,21 +19,6 @@ if debug:
                                 datefmt='',
                                 level=logging.INFO)
 
-cardinals = {
-    (0, 1): 'down',
-    (0, -1): 'up',
-    (1, 0): 'right',
-    (-1, 0): 'left'
-}
-
-opposite_directions = dict([(value, key) for key, value in cardinals.items()])
-
-diagnols = {
-    (1, 1): ("down", "right"),
-    (1, -1): ("up", "right"),
-    (-1, 1): ("down", "left"),
-    (-1, -1): ("up", "left")
-}
 
 def get_action(snake, food, board_size):
     """
@@ -45,11 +31,11 @@ def get_action(snake, food, board_size):
     if debug: logging.info(f"food: {food}")
 
     # code for picking random moves that dont kill the snake (mostly just for debugging and comparison)
-    # return random.choice([i for i in filter(lambda seq: good_direction(seq,snake,board_size), list(cardinals.values()))])
+    # return random.choice([i for i in filter(lambda seq: good_direction(seq,snake,board_size), list(helpers.cardinals.values()))])
 
     # check if there is only one direction to go (to make it faster in the late game)
     if len(snake) > (board_size[0]**2)*0.8:
-        possible_directions = [i for i in filter(lambda seq: good_direction(seq,snake,board_size), list(cardinals.values()))]
+        possible_directions = [i for i in filter(lambda seq: good_direction(seq,snake,board_size), list(helpers.cardinals.values()))]
         if len(possible_directions) == 1:
             if debug: logging.info(f"only one direction is allowed: {possible_directions[0]}")
             return possible_directions[0]
@@ -60,25 +46,25 @@ def get_action(snake, food, board_size):
     path_to_food = a_star.a_Star(snake[0], food, board_size, snake)
     # if the food is not reachable or very far then the vector is the opposite of the food (this is to free up space near the food)
     if not path_to_food or len(path_to_food) > board_size[0] + board_size[1]:
-        vector_to_food = reverse_vector(normalize(get_diagnol_vector_from_head(snake, food)))
+        vector_to_food = helpers.reverse_vector(helpers.normalize(helpers.get_diagnol_vector_from_head(snake, food)))
         if debug: logging.info(f"reverse vector to food: {vector_to_food}")
     # if the food is one square away, and we cant reach it by going in its directino, go away from the tail (this is to prevent some edge loop cases)
     elif len(path_to_food) == 1:
-        vector_to_food = normalize(get_diagnol_vector_from_head(snake, path_to_food[0]))
-        if good_direction(cardinals[vector_to_food], snake, board_size):
+        vector_to_food = helpers.normalize(helpers.get_diagnol_vector_from_head(snake, path_to_food[0]))
+        if good_direction(helpers.cardinals[vector_to_food], snake, board_size):
             # previously i had this line to tell it to go for the food if it could and was one away, but that was worse than commenting it out
             # if debug: logging.info(f"one away from food, vector: {vector_to_food}")
-            # return cardinals[vector_to_food]
+            # return helpers.cardinals[vector_to_food]
             pass
         else:
-            vector_away_from_tail = get_direction_names_from_vector(reverse_vector(normalize(get_diagnol_vector_from_head(snake, snake[-1]))))
+            vector_away_from_tail = get_direction_names_from_vector(helpers.reverse_vector(helpers.normalize(helpers.get_diagnol_vector_from_head(snake, snake[-1]))))
             possible_direction = best_rand_direction(vector_away_from_tail)
             if good_direction(possible_direction):
                 if debug: logging.info(f"one away from food, but that direction is bad, so going away from tail instead: chosen direction: {possible_direction}")
                 return possible_direction
     # otherwise the food is reachable and not too far, set the vector to the direction of the food
     else:
-        vector_to_food = normalize(get_diagnol_vector_from_head(snake, food))
+        vector_to_food = helpers.normalize(helpers.get_diagnol_vector_from_head(snake, food))
         if debug: logging.info(f"diagnol vector to food: {vector_to_food}")
     
 
@@ -88,16 +74,16 @@ def get_action(snake, food, board_size):
     # if there is a path to the food and that path is small, then take the intersection of the path to the food and the path away from the tail
         # this is to prevent a lot of loop cases
     # if its a cardinal direction then set the direction choice to that
-    if cardinals.get(vector_to_food, None):
-        direction_choice =  cardinals[vector_to_food]
+    if helpers.cardinals.get(vector_to_food, None):
+        direction_choice =  helpers.cardinals[vector_to_food]
         if debug: logging.info(f"cardinal vector to food: {direction_choice}")
     # if its a diagnol direction then set the direction choice to the best cardinal direction
     else:
-        direction_choice =  best_rand_direction(diagnols[vector_to_food], snake, board_size, path_to_food, food)
+        direction_choice =  best_rand_direction(helpers.diagnols[vector_to_food], snake, board_size, path_to_food, food)
         if debug: logging.info(f"diagnol vector to food: {direction_choice}")
     if path_to_food and len(path_to_food) < (board_size[0]+board_size[1]/4): # average of the width and height / 2
-        vector_to_food = get_direction_names_from_vector(normalize(get_diagnol_vector_from_head(snake, food)))
-        vector_away_from_tail = get_direction_names_from_vector(reverse_vector(normalize(get_diagnol_vector_from_head(snake, snake[-1]))))
+        vector_to_food = get_direction_names_from_vector(helpers.normalize(helpers.get_diagnol_vector_from_head(snake, food)))
+        vector_away_from_tail = get_direction_names_from_vector(helpers.reverse_vector(helpers.normalize(helpers.get_diagnol_vector_from_head(snake, snake[-1]))))
         intersection = get_same_directions(vector_to_food, vector_away_from_tail)
         if debug: logging.info(f"intersections: {intersection}")
         # set the direction choice to one of the intersections
@@ -109,7 +95,7 @@ def get_action(snake, food, board_size):
 
     # this section is to pick a direction
 
-    possible_directions = list(cardinals.values())
+    possible_directions = list(helpers.cardinals.values())
     possible_directions.remove(direction_choice)
     while possible_directions:
         if debug: logging.info(f"checking direction: {direction_choice}")
@@ -146,7 +132,7 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
     for direction in possible_directions:
         # if it is a good direction, check all directions given that you go in that direction
         snake_copy = get_snake_copy(snake, direction)
-        for second_direction in cardinals.values():
+        for second_direction in helpers.cardinals.values():
             if debug: logging.info(f"looking at direction: {second_direction} from direction : {direction}")
             # if that direction is good, add 1 to the dict where the key is the original direction
             if good_direction(second_direction, snake_copy, board_size):
@@ -216,8 +202,8 @@ def check_for_any_blocked_off_squares(direction, snake, board_size):
     # this function says "if you go in this direciton, are there any squares that are blocked off?"
     goal = get_square_in_direction(snake[0], direction)
     # for every neighbor
-    for square in get_all_neighbors(goal):
-        if square in snake or square == goal or out_of_bounds(square, board_size):
+    for square in helpers.get_all_neighbors(goal):
+        if square in snake or square == goal or helpers.out_of_bounds(square, board_size):
             continue
         # check if its enclosed
         if square_is_enclosed(square, snake, board_size, 3):
@@ -226,8 +212,8 @@ def check_for_any_blocked_off_squares(direction, snake, board_size):
 
 def square_is_enclosed(square, snake, board_size, max_neighbors):
     sides_blocked = 0
-    for neighbor in get_cardinal_neighbors(square):
-        if neighbor in snake or out_of_bounds(neighbor, board_size):
+    for neighbor in helpers.get_cardinal_neighbors(square):
+        if neighbor in snake or helpers.out_of_bounds(neighbor, board_size):
             sides_blocked += 1
     return sides_blocked >= max_neighbors
 
@@ -239,48 +225,22 @@ def get_same_directions(directiosn1, directions2):
     return intersection
 
 def get_direction_names_from_vector(direction):
-    if cardinals.get(direction, None):
-        return [cardinals[direction]]
+    if helpers.cardinals.get(direction, None):
+        return [helpers.cardinals[direction]]
     else:
-        return diagnols[direction]
+        return helpers.diagnols[direction]
 
 def get_square_in_direction(square, direction):
-    x = square[0] + opposite_directions[direction][0]
-    y = square[1] + opposite_directions[direction][1]
+    x = square[0] + helpers.opposite_directions[direction][0]
+    y = square[1] + helpers.opposite_directions[direction][1]
     return (x, y)
     
 def get_num_neighbors_in_snake(square, snake, board_size):
     num = 0
-    for neighbor in get_all_neighbors(square):
+    for neighbor in helpers.get_all_neighbors(square):
         if neighbor in snake:
             num += 1
     return num
-
-def get_cardinal_neighbors(square):
-    x, y = square
-    neighbors = []
-    for direction in list(cardinals.keys()):
-        neighbor = (x + direction[0], y + direction[1])
-        neighbors.append(neighbor)
-    return neighbors
-
-def get_all_neighbors(square):
-    """
-    Returns the neighbors at the given coordinate.
-    """
-    x, y = square
-    neighbors = []
-    for direction in list(cardinals.keys()) + list(diagnols.keys()):
-        neighbor = (x + direction[0], y + direction[1])
-        neighbors.append(neighbor)
-    return neighbors
-
-def out_of_bounds(square, board_size):
-    """
-    Returns True if the square is out of bounds.
-    """
-    x, y = square
-    return x < 0 or x >= board_size[0] or y < 0 or y >= board_size[1]
 
 def has_seperated_squares(direction, snake, board_size):
     square = get_square_in_direction(snake[0], direction)
@@ -295,7 +255,7 @@ def has_seperated_squares(direction, snake, board_size):
     return False
 
 def good_direction(direction, snake, board_size):
-    does_intersect = intersects(direction, snake, board_size)
+    does_intersect = helpers.intersects(direction, snake, board_size)
     if does_intersect:
         if debug: logging.info(f"{direction} intersects")
         return False
@@ -308,55 +268,12 @@ def good_direction(direction, snake, board_size):
 def can_see_tail_a_star(square, snake, board_size):
     return a_star.a_Star(square, snake[-1], board_size, snake[:len(snake)-1]) != None
 
-
-def intersects(direction, snake, board_size):
-    """
-    Returns True if the snake will intersect itself if it moves in the given direction.
-    """
-    head_x, head_y = snake[0]
-    new_head_x = opposite_directions[direction][0] + head_x
-    new_head_y = opposite_directions[direction][1] + head_y
-    if out_of_bounds((new_head_x, new_head_y), board_size):
-        return True
-    if (new_head_x, new_head_y) in snake[1:len(snake)-1]:
-        return True
-    return False
-
-def reverse_vector(vector):
-    return (-vector[0], -vector[1])
-
-def get_cardinal_vector_from_head(snake, food):
-    """
-    Returns the vector from the head of the snake to the food.
-    """
-    return (food[0] - snake[0][0], food[1] - snake[0][1])
-
-def get_diagnol_vector_from_head(snake, point):
-    """
-    Returns the vector to the point from the head, prefers diagnols.
-    """
-    vector = (point[0] - snake[0][0], point[1] - snake[0][1])
-    x_sign = 1 if vector[0] >= 0 else -1
-    y_sign = 1 if vector[1] >= 0 else -1
-    x = x_sign * math.ceil(abs(vector[0]))
-    y = y_sign * math.ceil(abs(vector[1]))
-    return (x, y)
-
-def normalize(vector):
-    """
-    Returns the normalized vector.
-    """
-    x, y = vector
-    x_component = int(x / abs(x)) if vector[0] != 0 else 0
-    y_component = int(y / abs(y)) if vector[1] != 0 else 0
-    return (x_component, y_component)
-
 def has_path_to_food(direction, snake, board_size, food):
     """
     Returns True if the snake can move in the given direction and reach the food.
     """
-    x = snake[0][0] + opposite_directions[direction][0]
-    y = snake[0][1] + opposite_directions[direction][1]
+    x = snake[0][0] + helpers.opposite_directions[direction][0]
+    y = snake[0][1] + helpers.opposite_directions[direction][1]
     if x == food[0] and y == food[1]:
         return True
     return a_star.a_Star((x,y), food, board_size, snake[1:]) != None
