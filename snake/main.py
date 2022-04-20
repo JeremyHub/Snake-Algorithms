@@ -1,3 +1,4 @@
+from tkinter.tix import TCL_ALL_EVENTS
 import snake
 import pygame
 import concurrent.futures
@@ -48,7 +49,7 @@ if __name__ == '__main__':
             result_log.append(result)
     elif running_type == 'ai' and not does_draw and not debug:
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            result_log = [executor.submit(run_one_AI_game, ai_type, i, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
+            result_log = [executor.submit(run_one_AI_game, i, ai_type,  board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
     elif running_type == 'ai' and (does_draw or debug):
         for i in range(num_games):
             result_log.append(run_one_AI_game(i, ai_type, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw))
