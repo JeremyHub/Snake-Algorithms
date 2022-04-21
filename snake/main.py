@@ -10,7 +10,7 @@ def run_one_AI_game(name, ai_type, board_size_x, board_size_y, screen, screen_si
     result = False
     while not result:
         result = game.run_with_ai_input(ai_type)
-    print(f'Game {name} finished with score {result[0]} and {result[1]} moves')
+    print('Game {name} finished with score {result[0]} and {result[1]} moves'.format(name=name, result=result))
     return result
 
 debug = False
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     # running_type = 'human'
     running_type = 'ai'
     # running_type = 'replay_under_20_ai'
-    does_draw = True
+    does_draw = False
     num_games = 100
     board_size = (12, 11)
     # ai_type = 'tail'
@@ -45,7 +45,7 @@ if __name__ == '__main__':
             result = False
             while not result:
                 result = board.run_with_human_input()
-            print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
+            print('Game {i} finished with score {result[0]} and {result[1]} moves'.format(i=i, result=result))
             result_log.append(result)
     elif running_type == 'ai' and not does_draw and not debug:
         with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -65,7 +65,7 @@ if __name__ == '__main__':
                 while True:
                     game.reconstruct_game(moves.copy(), foods.copy())
             else:
-                print(f'Game {i} finished with score {result[0]} and {result[1]} moves')
+                print('Game {i} finished with score {result[0]} and {result[1]} moves'.format(i=i, result=result))
     else:
         raise Exception('unknown running type')
 
@@ -104,9 +104,9 @@ if __name__ == '__main__':
     fig2.histogram(scores, bins=100)
     print(fig2.show(legend=True))
 
-    print(f'average score: {total_score / num_games}')
-    print(f'average moves: {total_moves / num_games}')
-    print(f'max score: {max_score}')
-    print(f'min score: {min_score}')
-    print(f'win %: {100*total_wins / num_games}')
+    print('average score: {average}'.format(average=total_score/num_games))
+    print('average moves: {average}'.format(average=total_moves/num_games))
+    print('max score: {max_score}'.format(max_score=max_score))
+    print('min score: {min_score}'.format(min_score=min_score))
+    print('win %: {percent}'.format(percent=100*total_wins/num_games))
     pygame.quit()

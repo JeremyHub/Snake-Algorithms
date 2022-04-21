@@ -124,7 +124,7 @@ class Board:
 
     def draw_heuristics(self):
         font = pygame.font.SysFont('Arial', 20)
-        text = font.render(f'num moves: {self.num_moves}', True, (255, 255, 255))
+        text = font.render('num moves: {}'.format(self.num_moves), True, (255, 255, 255))
         self.screen.blit(text, (80, self.height * self.scale))
         pygame.display.flip()
     
@@ -139,7 +139,7 @@ class Board:
             self.direction = 'down'
     
     def update(self):
-        if self.debug: logging.info(f'updated: {self.num_moves} {self.direction}')
+        if self.debug: logging.info('updated: {} {}'.format(self.num_moves, self.direction))
         if self.log_moves: self.moves.append(self.direction)
         ate_food = self.move_snake()
         self.check_collision()
@@ -195,10 +195,10 @@ class Board:
         self.direction = direction
         self.update()
         # pygame.time.delay(60)
-        if self.debug: logging.info(f'ai action: {self.direction}')
+        if self.debug: logging.info('ai action: {}'.format(direction))
         if self.num_moves > self.move_limit or self.game_over:
             to_return = (self.score, self.num_moves)
-            if self.debug: logging.info(f'game over: {to_return}')
+            if self.debug: logging.info('game over: {}'.format(to_return))
             self.reset()
             return to_return
         return None
