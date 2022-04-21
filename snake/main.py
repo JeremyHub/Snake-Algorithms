@@ -13,7 +13,7 @@ def run_one_AI_game(name, ai_type, board_size_x, board_size_y, screen, screen_si
     print(f'Game {name} finished with score {result[0]} and {result[1]} moves')
     return result
 
-debug = True
+debug = False
 
 if __name__ == '__main__':
 
