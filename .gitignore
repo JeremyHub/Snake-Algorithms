@@ -1,3 +1,4 @@
 path_ai_log.txt
 tail_ai_log.txt
 __pycache__/
+*.py[cod]
