@@ -1,4 +1,3 @@
-from audioop import reverse
 import main
 import helpers
 debug = main.debug
