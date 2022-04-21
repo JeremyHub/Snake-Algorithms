@@ -2,6 +2,7 @@
 import pygame
 import random
 import snake_ai_tail
+import snake_ai_path
 import logging
 
 class Board:
@@ -205,7 +206,7 @@ class Board:
         return snake_ai_tail.get_action(self.snake, self.food, (self.width, self.height))
 
     def run_with_path_ai_input(self):
-        pass
+        return snake_ai_path.get_action(self.snake, self.food, (self.width, self.height))
 
     def run_with_random_ai_input(self):
         return random.choice(['right', 'left', 'up', 'down'])

@@ -1,5 +1,4 @@
 import main
-
 debug = main.debug
 
 if debug:
@@ -16,4 +15,11 @@ if debug:
                                 level=logging.INFO)
 
 def get_action(snake, food, board_size):
-    pass
+    if not check_hamiltonian(board_size):
+        raise Exception("Hamiltonian path is not possible")
+
+def check_hamiltonian(board_size):
+    if board_size[0] > 1 and board_size[1] > 1:
+        if not board_size[0]%2 or not board_size[1]%2:
+            return True
+    return False

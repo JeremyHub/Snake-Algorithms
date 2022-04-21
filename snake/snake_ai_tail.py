@@ -1,6 +1,5 @@
 import random
 import a_star
-import math
 import helpers
 
 import main

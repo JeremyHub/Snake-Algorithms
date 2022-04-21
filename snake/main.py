@@ -24,9 +24,9 @@ if __name__ == '__main__':
     # running_type = 'replay_under_20_ai'
     does_draw = True
     num_games = 100
-    board_size = (15, 15)
-    ai_type = 'tail'
-    # ai_type = 'path'
+    board_size = (15, 14)
+    # ai_type = 'tail'
+    ai_type = 'path'
     # ai_type = 'random'
 
     max_moves = ((board_size[0]*board_size[1])**(3.36/2)) if ai_type == 'tail' else float('inf')
