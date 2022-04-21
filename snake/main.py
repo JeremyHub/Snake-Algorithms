@@ -13,7 +13,7 @@ def run_one_AI_game(name, ai_type, board_size_x, board_size_y, screen, screen_si
     print(f'Game {name} finished with score {result[0]} and {result[1]} moves')
     return result
 
-debug = False
+debug = True
 
 if __name__ == '__main__':
 
@@ -24,9 +24,9 @@ if __name__ == '__main__':
     # running_type = 'replay_under_20_ai'
     does_draw = True
     num_games = 100
-    board_size = (15, 14)
-    ai_type = 'tail'
-    # ai_type = 'path'
+    board_size = (12, 11)
+    # ai_type = 'tail'
+    ai_type = 'path'
     # ai_type = 'random'
 
     max_moves = ((board_size[0]*board_size[1])**(3.36/2)) if ai_type == 'tail' else float('inf')
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     if running_type == 'human':
         for i in range(num_games):
-            board = snake.Board(board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw)
+            board = snake.Board(board_size[0], board_size[1], screen, screen_size, max_moves, debug=debug, does_draw=does_draw)
             result = False
             while not result:
                 result = board.run_with_human_input()

@@ -178,7 +178,7 @@ class Board:
     def reset(self):
         if self.debug: logging.info('reset')
         self.snake = [(self.width // 2, self.height // 2)]
-        tail = (self.snake[0][0] + 1, self.snake[0][1])
+        tail = (self.snake[0][0] - 1, self.snake[0][1])
         self.snake.append(tail)
         # tail2 = (self.snake[0][0] + 2, self.snake[0][1])
         # self.snake.append(tail2)
@@ -193,8 +193,9 @@ class Board:
         elif ai_type == 'tail': direction = self.run_with_tail_ai_input()
         elif ai_type == 'random': direction = self.run_with_random_ai_input()
         self.direction = direction
-        if self.debug: logging.info(f'ai action: {self.direction}')
         self.update()
+        # pygame.time.delay(60)
+        if self.debug: logging.info(f'ai action: {self.direction}')
         if self.num_moves > self.move_limit or self.game_over:
             to_return = (self.score, self.num_moves)
             if self.debug: logging.info(f'game over: {to_return}')
