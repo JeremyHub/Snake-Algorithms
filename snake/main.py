@@ -22,7 +22,7 @@ if __name__ == '__main__':
     # running_type = 'human'
     running_type = 'ai'
     # running_type = 'replay_under_20_ai'
-    does_draw = False
+    does_draw = True
     num_games = 100
     board_size = (12, 11)
     # ai_type = 'tail'
