@@ -1,6 +1,6 @@
 # snake game with pygame
 import main
-if not main.use_pypy: import snake_ai_tail
+import snake_ai_tail
 if not main.use_pypy: import pygame
 import random
 import snake_ai_path
