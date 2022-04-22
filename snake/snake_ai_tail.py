@@ -138,8 +138,10 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
                 # continue if it has blocked off squares
                 if check_for_any_blocked_off_squares(second_direction, snake_copy, board_size):
                     if debug: logging.info("{} has block off squares".format(second_direction))
-                    # good_directions_from_direction[direction] = -1
-                    good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
+                    if len(snake) > board_size[0]*board_size[1]/2:
+                        good_directions_from_direction[direction] = -1
+                    else:
+                        good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
                     continue
                 # i feel like the following code would be good but its too slow and also bad when i tested it
                 # if has_seperated_squares(second_direction, snake_copy, board_size):
