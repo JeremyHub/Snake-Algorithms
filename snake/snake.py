@@ -1,12 +1,13 @@
 # snake game with pygame
-import pygame
+import main
+if not main.use_pypy: import snake_ai_tail
+if not main.use_pypy: import pygame
 import random
-import snake_ai_tail
 import snake_ai_path
 import logging
 
 class Board:
-    def __init__(self, width, height, screen, screen_size, move_limit, *, debug=False, does_draw=True, log_moves=False):
+    def __init__(self, width, height, screen, screen_size, move_limit, debug=False, does_draw=True, log_moves=False):
         self.does_draw = does_draw
         self.move_limit = move_limit
         self.debug = debug
@@ -75,58 +76,60 @@ class Board:
             self.game_over = True
     
     def draw(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-        self.screen.fill((0, 0, 0))
-        pygame.draw.rect(self.screen, (255, 0, 255), (self.snake[0][0] * self.scale + self.padding, self.snake[0][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
-        pygame.draw.rect(self.screen, (255, 255, 255), (self.snake[-1][0] * self.scale + self.padding, self.snake[-1][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))        
-        transition_stage = 0
-        g = 0
-        b = 255
-        for x, y in self.snake[1:len(self.snake)-1]:
-            if transition_stage == 0:
-                g += 255//(len(self.snake)-2)
-                if g >= 255:
-                    transition_stage = 2
-            elif transition_stage == 2:
-                b += 255//(len(self.snake)-2)
-                if b >= 255:
-                    transition_stage = 3
-            elif transition_stage == 3:
-                g -= 255//(len(self.snake)-2)
-                if g <= 0:
-                    transition_stage = 5
-            elif transition_stage == 5:
-                b -= 255//(len(self.snake)-2)
-                if b <= 0:
-                    transition_stage = 0
-            pygame.draw.rect(self.screen, (0, g, b), (x * self.scale + self.padding, y * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
-        
-        pygame.draw.rect(self.screen, (255, 0, 0), (self.food[0] * self.scale + self.padding, self.food[1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
+        if not main.use_pypy:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+            self.screen.fill((0, 0, 0))
+            pygame.draw.rect(self.screen, (255, 0, 255), (self.snake[0][0] * self.scale + self.padding, self.snake[0][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
+            pygame.draw.rect(self.screen, (255, 255, 255), (self.snake[-1][0] * self.scale + self.padding, self.snake[-1][1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))        
+            transition_stage = 0
+            g = 0
+            b = 255
+            for x, y in self.snake[1:len(self.snake)-1]:
+                if transition_stage == 0:
+                    g += 255//(len(self.snake)-2)
+                    if g >= 255:
+                        transition_stage = 2
+                elif transition_stage == 2:
+                    b += 255//(len(self.snake)-2)
+                    if b >= 255:
+                        transition_stage = 3
+                elif transition_stage == 3:
+                    g -= 255//(len(self.snake)-2)
+                    if g <= 0:
+                        transition_stage = 5
+                elif transition_stage == 5:
+                    b -= 255//(len(self.snake)-2)
+                    if b <= 0:
+                        transition_stage = 0
+                pygame.draw.rect(self.screen, (0, g, b), (x * self.scale + self.padding, y * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
+            
+            pygame.draw.rect(self.screen, (255, 0, 0), (self.food[0] * self.scale + self.padding, self.food[1] * self.scale + self.padding, self.scale - (self.padding), self.scale - (self.padding)))
 
-        # draw score
-        font = pygame.font.SysFont('Arial', 20)
-        text = font.render('Score: ' + str(self.score), True, (255, 255, 255))
-        self.screen.blit(text, (0, self.height * self.scale))
-        
-        # draw grid lines
-        for x in range(self.width + 1):
-            pygame.draw.line(self.screen, (255, 255, 255), (x * self.scale, 0), (x * self.scale, self.height * self.scale), 1)
-        for y in range(self.height + 1):
-            pygame.draw.line(self.screen, (255, 255, 255), (0, y * self.scale), (self.width * self.scale, y * self.scale), 1)
-        pygame.display.flip()
+            # draw score
+            font = pygame.font.SysFont('Arial', 20)
+            text = font.render('Score: ' + str(self.score), True, (255, 255, 255))
+            self.screen.blit(text, (0, self.height * self.scale))
+            
+            # draw grid lines
+            for x in range(self.width + 1):
+                pygame.draw.line(self.screen, (255, 255, 255), (x * self.scale, 0), (x * self.scale, self.height * self.scale), 1)
+            for y in range(self.height + 1):
+                pygame.draw.line(self.screen, (255, 255, 255), (0, y * self.scale), (self.width * self.scale, y * self.scale), 1)
+            pygame.display.flip()
 
-        self.draw_heuristics()
+            self.draw_heuristics()
 
-        pygame.display.update()
+            pygame.display.update()
 
     def draw_heuristics(self):
-        font = pygame.font.SysFont('Arial', 20)
-        text = font.render('num moves: {}'.format(self.num_moves), True, (255, 255, 255))
-        self.screen.blit(text, (80, self.height * self.scale))
-        pygame.display.flip()
+        if not main.use_pypy:
+            font = pygame.font.SysFont('Arial', 20)
+            text = font.render('num moves: {}'.format(self.num_moves), True, (255, 255, 255))
+            self.screen.blit(text, (80, self.height * self.scale))
+            pygame.display.flip()
     
     def handle_input(self, input):
         if input == 'right' and self.direction != 'left':
@@ -149,31 +152,32 @@ class Board:
     
     def run_with_human_input(self):
         assert self.does_draw
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    self.action_queue.append('right')
-                elif event.key == pygame.K_LEFT:
-                    self.action_queue.append('left')
-                elif event.key == pygame.K_UP:
-                    self.action_queue.append('up')
-                elif event.key == pygame.K_DOWN:
-                    self.action_queue.append('down')
-                elif event.key == pygame.K_SPACE:
-                    self.reset()
-        if len(self.action_queue) > 0:
-            for action in self.action_queue:
-                self.handle_input(action)
+        if not main.use_pypy:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RIGHT:
+                        self.action_queue.append('right')
+                    elif event.key == pygame.K_LEFT:
+                        self.action_queue.append('left')
+                    elif event.key == pygame.K_UP:
+                        self.action_queue.append('up')
+                    elif event.key == pygame.K_DOWN:
+                        self.action_queue.append('down')
+                    elif event.key == pygame.K_SPACE:
+                        self.reset()
+            if len(self.action_queue) > 0:
+                for action in self.action_queue:
+                    self.handle_input(action)
+                    self.update()
+                    pygame.time.delay(120)
+                self.action_queue = []
+            else:
                 self.update()
                 pygame.time.delay(120)
-            self.action_queue = []
-        else:
-            self.update()
-            pygame.time.delay(120)
-        if self.game_over:
-            result = (self.score, self.num_moves)
-            self.reset()
-            return result
+            if self.game_over:
+                result = (self.score, self.num_moves)
+                self.reset()
+                return result
         
     def reset(self):
         if self.debug: logging.info('reset')
@@ -222,4 +226,4 @@ class Board:
             self.direction = move
             if self.update() and len(self.food)>0: self.food = foods.pop(0)
             self.draw()
-            pygame.time.delay(30)
+            if not main.use_pypy: pygame.time.delay(30)

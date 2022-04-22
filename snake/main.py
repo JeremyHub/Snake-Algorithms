@@ -1,10 +1,12 @@
 import snake
-import pygame
-import concurrent.futures
-import plotille
+use_pypy = False
+if not use_pypy: import pygame
+if not use_pypy: import plotille
+import multiprocessing as mp
 
 # function for threapool to use
-def run_one_AI_game(name, ai_type, board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw):
+def run_one_AI_game(tuple_of_args):
+    name, ai_type, board_size_x, board_size_y, screen, screen_size, max_moves, debug, does_draw = tuple_of_args
     game = snake.Board(board_size_x, board_size_y, screen, screen_size, max_moves, debug=debug, does_draw=does_draw)
     game.reset()
     result = False
@@ -23,7 +25,7 @@ if __name__ == '__main__':
     running_type = 'ai'
     # running_type = 'replay_under_20_ai'
     does_draw = True
-    num_games = 100
+    num_games = 500
     board_size = (12, 11)
     # ai_type = 'tail'
     ai_type = 'path'
@@ -33,13 +35,18 @@ if __name__ == '__main__':
     screen_size = 900
 
     result_log = []
-    if does_draw or running_type == 'debug_ai':
-        pygame.init()
-        screen = pygame.display.set_mode((screen_size, screen_size))
-    else:
-        screen = None
+    screen = None
+    if not use_pypy:
+        if does_draw or running_type == 'debug_ai':
+            pygame.init()
+            screen = pygame.display.set_mode((screen_size, screen_size))
 
-    if running_type == 'human':
+    if use_pypy or (running_type == 'ai' and not does_draw and not debug):
+        pool = mp.Pool(processes=10)
+        map_result = pool.map_async(run_one_AI_game, [(str(i), ai_type, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)])
+        result_log = map_result.get()
+        pool.close()
+    elif running_type == 'human':
         for i in range(num_games):
             board = snake.Board(board_size[0], board_size[1], screen, screen_size, max_moves, debug=debug, does_draw=does_draw)
             result = False
@@ -47,12 +54,9 @@ if __name__ == '__main__':
                 result = board.run_with_human_input()
             print('Game {i} finished with score {result[0]} and {result[1]} moves'.format(i=i, result=result))
             result_log.append(result)
-    elif running_type == 'ai' and not does_draw and not debug:
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            result_log = [executor.submit(run_one_AI_game, i, ai_type,  board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)]
     elif running_type == 'ai' and (does_draw or debug):
         for i in range(num_games):
-            result_log.append(run_one_AI_game(i, ai_type, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw))
+            result_log.append(run_one_AI_game((i, ai_type, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw)))
     elif running_type == 'replay_under_20_ai':
         for i in range(num_games):
             game = snake.Board(board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw, True)
@@ -77,8 +81,7 @@ if __name__ == '__main__':
     all_moves = []
     scores = []
     for result in result_log:
-        if running_type == 'ai' and not (does_draw or debug): score, moves = result.result()
-        else: score, moves = result
+        score, moves = result
         all_moves.append(moves)
         scores.append(score)
         if score == board_size[0] * board_size[1]:
@@ -90,23 +93,24 @@ if __name__ == '__main__':
         if score < min_score:
             min_score = score
 
-    fig = plotille.Figure()
-    fig.width = 60
-    fig.height = 30
-    fig.color_mode = 'byte'
-    fig.histogram(all_moves, bins=100)
-    print(fig.show(legend=True))
+    if not use_pypy:
+        fig = plotille.Figure()
+        fig.width = 60
+        fig.height = 30
+        fig.color_mode = 'byte'
+        fig.histogram(all_moves, bins=100)
+        print(fig.show(legend=True))
 
-    fig2 = plotille.Figure()
-    fig2.width = 60
-    fig2.height = 30
-    fig2.color_mode = 'byte'
-    fig2.histogram(scores, bins=100)
-    print(fig2.show(legend=True))
+        fig2 = plotille.Figure()
+        fig2.width = 60
+        fig2.height = 30
+        fig2.color_mode = 'byte'
+        fig2.histogram(scores, bins=100)
+        print(fig2.show(legend=True))
 
     print('average score: {average}'.format(average=total_score/num_games))
     print('average moves: {average}'.format(average=total_moves/num_games))
     print('max score: {max_score}'.format(max_score=max_score))
     print('min score: {min_score}'.format(min_score=min_score))
     print('win %: {percent}'.format(percent=100*total_wins/num_games))
-    pygame.quit()
+    if not use_pypy: pygame.quit()
