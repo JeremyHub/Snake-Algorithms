@@ -138,6 +138,7 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
                 # continue if it has blocked off squares
                 if check_for_any_blocked_off_squares(second_direction, snake_copy, board_size):
                     if debug: logging.info("{} has block off squares".format(second_direction))
+                    # good_directions_from_direction[direction] = -1
                     good_directions_from_direction[direction] = good_directions_from_direction.get(direction, 0)
                     continue
                 # i feel like the following code would be good but its too slow and also bad when i tested it
@@ -192,7 +193,9 @@ def best_rand_direction(original_options, snake, board_size, path_to_food, food)
 
 def get_snake_copy(snake, direction):
     # making a copy of snake and taking away the tail
-    snake_copy = snake.copy()[:len(snake)-1]
+    snake_copy = []
+    for i in range(len(snake) - 1):
+        snake_copy.append((snake[i][0], snake[i][1]))
     # putting in the new head for the first direction
     snake_copy.insert(0, get_square_in_direction(snake[0], direction))
     return snake_copy
