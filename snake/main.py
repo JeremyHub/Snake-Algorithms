@@ -17,6 +17,19 @@ def run_one_AI_game(tuple_of_args):
 
 debug = False
 
+if debug:
+    import logging
+    import os
+    from os import exists
+    file_path = "ai_log.txt"
+    if exists(file_path):
+        os.remove(file_path)
+    logging.basicConfig(filename=file_path,
+                                filemode='a',
+                                format='',
+                                datefmt='',
+                                level=logging.INFO)
+
 if __name__ == '__main__':
 
     # things you might want to change
