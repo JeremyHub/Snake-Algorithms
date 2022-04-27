@@ -65,13 +65,12 @@ def create_cycle(board_size, start):
     return cycle
 
 
-def find_next_cell_in_cycle(current_cell, cycle, cycle_index):
+def find_next_cell_in_cycle(current_cell, cycle):
     try:
-        next_cell = cycle[cycle_index+1]
-    except IndexError:
-        next_cell = cycle[0]
-    return next_cell
-
+        index = cycle.index(current_cell)
+    except ValueError:
+        index = 0
+    return cycle[(index+1)%len(cycle)]
 
 def add_cells(current_cell, direction):
     x = current_cell[0] + helpers.opposite_directions[direction][0]
