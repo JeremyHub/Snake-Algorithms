@@ -29,9 +29,11 @@ def get_action(snake, food, board_size):
     cycle = create_cycle(board_size, snake[0])
     if debug: logging.info("cycle: {}".format(cycle))
 
+    # head is same row as food and to the left of it
     if snake[0][1] == food[1] and snake[0][0] < food[0]:
         direction_to_food = helpers.cardinals[helpers.normalize(helpers.get_cardinal_vector_from_head(snake, food))]
         if debug: logging.info("direction: {}".format(direction_to_food))
+        # if going that direction doesnt intersect the snake
         if not helpers.intersects(direction_to_food, snake, board_size):
             cell_in_direction = add_cells(snake[0], direction_to_food)
             # if from the cell in direction, following the cycle, it doesnt hit the body of the snake before the tail
