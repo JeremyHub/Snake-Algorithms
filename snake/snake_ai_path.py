@@ -24,11 +24,10 @@ def get_action(snake, food, board_size):
     if not check_hamiltonian(board_size):
         raise Exception("Hamiltonian path is not possible")
 
-    cycle, cycle_index = create_cycle(board_size, snake[0])
+    cycle = create_cycle(board_size, snake[0])
     if debug: logging.info("cycle: {}".format(cycle))
-    if debug: logging.info("cycle_index: {}".format(cycle_index))
 
-    next_cell = find_next_cell_in_cycle(snake[0], cycle, cycle_index)
+    next_cell = find_next_cell_in_cycle(snake[0], cycle)
     if debug: logging.info("next_cell: {}".format(next_cell))
 
     direction = helpers.cardinals[helpers.normalize(helpers.get_cardinal_vector_from_head(snake, next_cell))]
@@ -40,9 +39,8 @@ def create_cycle(board_size, start):
     # must be even x and odd y (can work on others later)
     assert(not board_size[0]%2 and board_size[1]%2)
 
-    cycle = {}
-    cycle_index_dict = {}
     current_cell = (start[0], start[1])
+    cycle = [current_cell]
     cycle_index = 0
     while cycle_index < (board_size[0]+1)*(board_size[1]+1):
         # if debug: logging.info("current_cell: {}".format(current_cell))
@@ -62,17 +60,17 @@ def create_cycle(board_size, start):
             # if debug: logging.info("else, column is odd, going down")
             direction = 'down'
         current_cell = add_cells(current_cell, direction)
-        cycle[cycle_index] = current_cell
-        cycle_index_dict[current_cell] = cycle_index
+        cycle.append(current_cell)
         cycle_index += 1
-    return cycle, cycle_index_dict
+    return cycle
 
 
 def find_next_cell_in_cycle(current_cell, cycle, cycle_index):
-    if current_cell in cycle_index:
-        return cycle[cycle_index[current_cell]+1]
-    else:
-        return cycle[0]
+    try:
+        next_cell = cycle[cycle_index+1]
+    except IndexError:
+        next_cell = cycle[0]
+    return next_cell
 
 
 def add_cells(current_cell, direction):
