@@ -60,11 +60,11 @@ def intersects(direction, snake, board_size):
 def reverse_vector(vector):
     return (-vector[0], -vector[1])
 
-def get_cardinal_vector_from_head(snake, food):
+def get_cardinal_vector_from_head(snake, point):
     """
-    Returns the vector from the head of the snake to the food.
+    Returns the vector from the head of the snake to the point.
     """
-    return (food[0] - snake[0][0], food[1] - snake[0][1])
+    return (point[0] - snake[0][0], point[1] - snake[0][1])
 
 def get_diagnol_vector_from_head(snake, point):
     """

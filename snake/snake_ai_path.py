@@ -1,5 +1,6 @@
 import main
 import helpers
+import snake_ai_tail
 debug = main.debug
 
 if debug:
@@ -24,8 +25,23 @@ def get_action(snake, food, board_size):
     if not check_hamiltonian(board_size):
         raise Exception("Hamiltonian path is not possible")
 
+
     cycle = create_cycle(board_size, snake[0])
     if debug: logging.info("cycle: {}".format(cycle))
+
+    if snake[0][1] == food[1] and snake[0][0] < food[0]:
+        direction_to_food = helpers.cardinals[helpers.normalize(helpers.get_cardinal_vector_from_head(snake, food))]
+        if debug: logging.info("direction: {}".format(direction_to_food))
+        if not helpers.intersects(direction_to_food, snake, board_size):
+            cell_in_direction = add_cells(snake[0], direction_to_food)
+            # if from the cell in direction, following the cycle, it doesnt hit the body of the snake before the tail
+            while not cell_in_direction == snake[-1]:
+                if cell_in_direction in snake:
+                    break
+                cell_in_direction = find_next_cell_in_cycle(cell_in_direction, cycle)
+            else:
+                if debug: logging.info("choosing direction: {}".format(direction_to_food))
+                return direction_to_food
 
     next_cell = find_next_cell_in_cycle(snake[0], cycle)
     if debug: logging.info("next_cell: {}".format(next_cell))
@@ -63,7 +79,6 @@ def create_cycle(board_size, start):
         cycle.append(current_cell)
         cycle_index += 1
     return cycle
-
 
 def find_next_cell_in_cycle(current_cell, cycle):
     try:
