@@ -18,6 +18,10 @@ if debug:
 
 
 def get_action(snake, food, board_size):
+    '''
+    This function is called every turn of the game.
+    It should return the direction the snake wants to go that turn.
+    '''
     if debug: logging.info("snake: {}".format(snake))
     if debug: logging.info("food: {}".format(food))
     if debug: logging.info("board_size: {}".format(board_size))
