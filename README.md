@@ -1,7 +1,6 @@
 # How to play
 Run the main.py file. It is setup to play games (visually) where the path AI is controlling the snake.
 If you want to play the game for yourself, change the "running_type" variable to "human" rather than "ai".
-If you want the tail AI to play the game, change the ai_type to "tail".
 If you want it to run conccurently without drawing, change the use_pypy to True and run the main with pypy (or normally but its much slower).
 Libraries used: multiprocessing, pygame, plotille.
 
