@@ -43,7 +43,7 @@ if __name__ == '__main__':
             screen = pygame.display.set_mode((screen_size, screen_size))
 
     if use_pypy or (running_type == 'ai' and not does_draw and not debug):
-        pool = mp.Pool(processes=10)
+        pool = mp.Pool(processes=12)
         map_result = pool.map_async(run_one_AI_game, [(str(i), ai_type, board_size[0], board_size[1], screen, screen_size, max_moves, debug, does_draw) for i in range(num_games)])
         result_log = map_result.get()
         pool.close()
