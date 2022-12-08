@@ -28,8 +28,8 @@ if __name__ == '__main__':
     does_draw = True
     num_games = 500
     board_size = (12, 11)
-    # ai_type = 'tail'
-    ai_type = 'path'
+    ai_type = 'tail'
+    # ai_type = 'path'
     # ai_type = 'random'
 
     max_moves = ((board_size[0]*board_size[1])**(3.36/2)) if ai_type == 'tail' else float('inf')
