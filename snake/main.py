@@ -23,6 +23,7 @@ if __name__ == '__main__':
 
     # running_type = 'human'
     running_type = 'ai'
+    # replay under 20 replays games where score is <20 (built to catch loop cases)
     # running_type = 'replay_under_20_ai'
     does_draw = True
     num_games = 500
